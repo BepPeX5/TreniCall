@@ -46,7 +46,6 @@ public class EmailNotifier implements NotificaObserver {
         System.out.println(corpo);
         System.out.println("📧 =========================");
 
-        // Qui si integrerebbe con servizio email reale (SendGrid, AWS SES, etc.)
         simulaInvioEmail(oggetto, corpo);
     }
 

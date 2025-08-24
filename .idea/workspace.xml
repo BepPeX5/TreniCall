@@ -6,6 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="7b2f60aa-5bda-4144-97a6-af725741fe10" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/observer/observers/EmailNotifier.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/observer/observers/EmailNotifier.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/observer/observers/SMSNotifier.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/observer/observers/SMSNotifier.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,6 +59,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.trenicall.server.business.patterns.command" />
       <recent name="com.trenicall.server.business.patterns.state" />
     </key>
   </component>
@@ -142,7 +145,7 @@
       <workItem from="1755941605047" duration="2931000" />
       <workItem from="1755945121078" duration="910000" />
       <workItem from="1755964573175" duration="4925000" />
-      <workItem from="1756025772663" duration="5995000" />
+      <workItem from="1756025772663" duration="9440000" />
     </task>
     <servers />
   </component>

@@ -45,14 +45,12 @@ public class SMSNotifier implements NotificaObserver {
         System.out.println(messaggioSMS);
         System.out.println("📱 =========================");
 
-        // Qui si integrerebbe con servizio SMS reale (Twilio, AWS SNS, etc.)
         simulaInvioSMS(messaggioSMS);
     }
 
     private String creaMessaggioSMS(TrenoEvento evento) {
         StringBuilder messaggio = new StringBuilder();
 
-        // Header compatto
         messaggio.append("TreniCal: ");
 
         switch (evento.getTipoEvento()) {
