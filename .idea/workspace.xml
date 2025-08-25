@@ -6,8 +6,16 @@
   <component name="ChangeListManager">
     <list default="true" id="7b2f60aa-5bda-4144-97a6-af725741fe10" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/observer/observers/EmailNotifier.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/observer/observers/EmailNotifier.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/observer/observers/SMSNotifier.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/observer/observers/SMSNotifier.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/command/Command.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/command/Command.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/command/CommandManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/command/CommandManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/command/commands/AcquistoBigliettoCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/command/commands/AcquistoBigliettoCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/factory/BigliettoFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/factory/BigliettoFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/factory/BigliettoFactoryImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/factory/BigliettoFactoryImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/factory/types/BigliettoFrecciaRossaFactory.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/factory/types/BigliettoIntercityFactory.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/patterns/factory/types/BigliettoRegionaleFactory.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Biglietto.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Biglietto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/valueobjects/TipoBiglietto.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/valueobjects/TipoBiglietto.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -145,7 +153,8 @@
       <workItem from="1755941605047" duration="2931000" />
       <workItem from="1755945121078" duration="910000" />
       <workItem from="1755964573175" duration="4925000" />
-      <workItem from="1756025772663" duration="9440000" />
+      <workItem from="1756025772663" duration="9915000" />
+      <workItem from="1756129874834" duration="3245000" />
     </task>
     <servers />
   </component>

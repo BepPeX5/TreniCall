@@ -1,23 +1,32 @@
 package com.trenicall.server.domain.entities;
 
 import com.trenicall.server.business.patterns.state.StatoBiglietto;
+import com.trenicall.server.domain.valueobjects.TipoBiglietto;
+
+import java.time.LocalDateTime;
 
 public class Biglietto {
     private String id;
+    private String clienteId;
     private StatoBiglietto stato;
-    private String tipo;
-    private String partenza, arrivo;
+    private TipoBiglietto tipo;
+    private String partenza;
+    private String arrivo;
+    private LocalDateTime dataViaggio;
     private Integer distanzaKm;
     private Double prezzo;
 
-    public Biglietto(String id, StatoBiglietto stato, String tipo, String partenza, String arrivo, Integer distanzaKm, Double prezzo) {
+    public Biglietto(String id, String clienteId, StatoBiglietto stato, TipoBiglietto tipo,
+                     String partenza, String arrivo, LocalDateTime dataViaggio, Integer distanzaKm) {
         this.id = id;
+        this.clienteId = clienteId;
         this.stato = stato;
         this.tipo = tipo;
         this.partenza = partenza;
         this.arrivo = arrivo;
+        this.dataViaggio = dataViaggio;
         this.distanzaKm = distanzaKm;
-        this.prezzo = prezzo;
+        this.prezzo = distanzaKm * tipo.getPrezzoPerKm();
     }
 
     public String getId() {
@@ -28,6 +37,14 @@ public class Biglietto {
         this.id = id;
     }
 
+    public String getClienteId() {
+        return clienteId;
+    }
+
+    public void setClienteId(String clienteId) {
+        this.clienteId = clienteId;
+    }
+
     public StatoBiglietto getStato() {
         return stato;
     }
@@ -36,11 +53,11 @@ public class Biglietto {
         this.stato = stato;
     }
 
-    public String getTipo() {
+    public TipoBiglietto getTipo() {
         return tipo;
     }
 
-    public void setTipo(String tipo) {
+    public void setTipo(TipoBiglietto tipo) {
         this.tipo = tipo;
     }
 
@@ -60,12 +77,21 @@ public class Biglietto {
         this.arrivo = arrivo;
     }
 
+    public LocalDateTime getDataViaggio() {
+        return dataViaggio;
+    }
+
+    public void setDataViaggio(LocalDateTime dataViaggio) {
+        this.dataViaggio = dataViaggio;
+    }
+
     public Integer getDistanzaKm() {
         return distanzaKm;
     }
 
     public void setDistanzaKm(Integer distanzaKm) {
         this.distanzaKm = distanzaKm;
+        this.prezzo = distanzaKm * tipo.getPrezzoPerKm();
     }
 
     public Double getPrezzo() {
@@ -96,12 +122,15 @@ public class Biglietto {
     public String toString() {
         return "Biglietto{" +
                 "id='" + id + '\'' +
+                ", clienteId='" + clienteId + '\'' +
                 ", stato=" + stato.getNomeStato() +
-                ", tipo='" + tipo + '\'' +
+                ", tipo=" + tipo.getDescrizione() +
                 ", partenza='" + partenza + '\'' +
                 ", arrivo='" + arrivo + '\'' +
+                ", dataViaggio=" + dataViaggio +
                 ", distanzaKm=" + distanzaKm +
                 ", prezzo=" + prezzo +
                 '}';
     }
 }
+
