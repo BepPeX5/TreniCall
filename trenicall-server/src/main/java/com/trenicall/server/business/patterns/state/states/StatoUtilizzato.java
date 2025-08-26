@@ -7,53 +7,26 @@ public class StatoUtilizzato implements StatoBiglietto {
 
     @Override
     public void confermaPrenotazione(Biglietto biglietto) {
-        throw new IllegalStateException("Biglietto già utilizzato");
+        throw new IllegalStateException("Il biglietto è già utilizzato.");
     }
 
     @Override
     public void utilizzaBiglietto(Biglietto biglietto) {
-        throw new IllegalStateException("Biglietto già utilizzato");
+        throw new IllegalStateException("Il biglietto è già utilizzato.");
     }
 
     @Override
     public void rimborsaBiglietto(Biglietto biglietto) {
-        System.out.println("Rimborso eccezionale biglietto utilizzato " + biglietto.getId());
-        System.out.println("Rimborso del 50% per motivi straordinari");
-        biglietto.setStato(new StatoRimborsato());
+        throw new IllegalStateException("Non è possibile rimborsare un biglietto utilizzato.");
     }
 
     @Override
     public void modificaBiglietto(Biglietto biglietto) {
-        throw new IllegalStateException("Impossibile modificare biglietto già utilizzato");
-    }
-
-    @Override
-    public void scadenzaBiglietto(Biglietto biglietto) {
-        throw new IllegalStateException("Biglietto utilizzato non può scadere");
+        throw new IllegalStateException("Non è possibile modificare un biglietto utilizzato.");
     }
 
     @Override
     public String getNomeStato() {
         return "UTILIZZATO";
-    }
-
-    @Override
-    public boolean isUtilizzabile() {
-        return false;
-    }
-
-    @Override
-    public boolean isModificabile() {
-        return false;
-    }
-
-    @Override
-    public boolean isRimborsabile() {
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "StatoUtilizzato{utilizzabile=false, modificabile=false, rimborsabile=true}";
     }
 }

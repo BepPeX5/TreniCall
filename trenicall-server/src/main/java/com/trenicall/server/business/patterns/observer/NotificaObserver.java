@@ -1,14 +1,8 @@
 package com.trenicall.server.business.patterns.observer;
 
+import com.trenicall.server.business.patterns.observer.TrenoEvento;
+
 public interface NotificaObserver {
-
-    void notifica(TrenoEvento evento);
-
-    String getTipoNotifica();
-
-    boolean isAttivo();
-
-    void attiva();
-
-    void disattiva();
+    void aggiorna(TrenoEvento evento);
+    String getCanale();
 }
