@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.trenicall.server.grpc.cliente";
+option java_outer_classname = "ClienteProto";
+
+service ClienteService {
+  rpc RegistraCliente (RegistraClienteRequest) returns (ClienteResponse);
+  rpc AbilitaFedelta (AbilitaFedeltaRequest) returns (ClienteResponse);
+  rpc DettagliCliente (DettagliClienteRequest) returns (ClienteResponse);
+}
+
+message RegistraClienteRequest {
+  string id = 1;
+  string nome = 2;
+  string email = 3;
+  string telefono = 4;
+}
+
+message AbilitaFedeltaRequest {
+  string clienteId = 1;
+}
+
+message DettagliClienteRequest {
+  string clienteId = 1;
+}
+
+message ClienteResponse {
+  string id = 1;
+  string nome = 2;
+  string email = 3;
+  string telefono = 4;
+  bool fedelta = 5;
+}

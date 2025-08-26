@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.trenicall.server.grpc.biglietteria";
+option java_outer_classname = "BiglietteriaProto";
+
+service BiglietteriaService {
+  rpc RicercaBiglietti (RicercaBigliettiRequest) returns (RicercaBigliettiResponse);
+  rpc AcquistaBiglietto (AcquistaBigliettoRequest) returns (BigliettoResponse);
+  rpc ModificaBiglietto (ModificaBigliettoRequest) returns (BigliettoResponse);
+  rpc ListaBigliettiCliente (ListaBigliettiClienteRequest) returns (ListaBigliettiClienteResponse);
+}
+
+message RicercaBigliettiRequest {
+  string partenza = 1;
+  string arrivo = 2;
+  string dataViaggio = 3;
+  string classeServizio = 4;
+  bool soloAltaVelocita = 5;
+  bool includiPromozioni = 6;
+}
+
+message RicercaBigliettiResponse {
+  repeated BigliettoResponse risultati = 1;
+}
+
+message AcquistaBigliettoRequest {
+  string clienteId = 1;
+  string tipoBiglietto = 2;
+  string partenza = 3;
+  string arrivo = 4;
+  string dataViaggio = 5;
+  int32 distanzaKm = 6;
+}
+
+message ModificaBigliettoRequest {
+  string bigliettoId = 1;
+  string nuovaData = 2;
+}
+
+message ListaBigliettiClienteRequest {
+  string clienteId = 1;
+}
+
+message ListaBigliettiClienteResponse {
+  repeated BigliettoResponse biglietti = 1;
+}
+
+message BigliettoResponse {
+  string id = 1;
+  string clienteId = 2;
+  string tipo = 3;
+  string stato = 4;
+  string partenza = 5;
+  string arrivo = 6;
+  string dataViaggio = 7;
+  int32 distanzaKm = 8;
+  double prezzo = 9;
+}

@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.trenicall.server.grpc.promozione";
+option java_outer_classname = "PromozioneProto";
+
+service PromozioneService {
+  rpc CreaPromozione (CreaPromozioneRequest) returns (PromozioneResponse);
+  rpc ListaPromozioni (ListaPromozioniRequest) returns (ListaPromozioniResponse);
+}
+
+message CreaPromozioneRequest {
+  string nome = 1;
+  double percentualeSconto = 2;
+  string inizio = 3;
+  string fine = 4;
+  string trattaPartenza = 5;
+  string trattaArrivo = 6;
+  bool soloFedelta = 7;
+}
+
+message ListaPromozioniRequest {}
+
+message ListaPromozioniResponse {
+  repeated PromozioneResponse promozioni = 1;
+}
+
+message PromozioneResponse {
+  string id = 1;
+  string nome = 2;
+  double percentualeSconto = 3;
+  string inizio = 4;
+  string fine = 5;
+  string trattaPartenza = 6;
+  string trattaArrivo = 7;
+  bool soloFedelta = 8;
+}

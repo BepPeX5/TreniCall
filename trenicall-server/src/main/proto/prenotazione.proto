@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.trenicall.server.grpc.prenotazione";
+option java_outer_classname = "PrenotazioneProto";
+
+service PrenotazioneService {
+  rpc CreaPrenotazione (CreaPrenotazioneRequest) returns (PrenotazioneResponse);
+  rpc ConfermaAcquisto (ConfermaAcquistoRequest) returns (BigliettoResponse);
+  rpc ListaPrenotazioniAttive (ListaPrenotazioniRequest) returns (ListaPrenotazioniResponse);
+}
+
+message CreaPrenotazioneRequest {
+  string clienteId = 1;
+  string tipoBiglietto = 2;
+  string partenza = 3;
+  string arrivo = 4;
+  string dataViaggio = 5;
+  int32 distanzaKm = 6;
+  int32 minutiValidita = 7;
+}
+
+message ConfermaAcquistoRequest {
+  string prenotazioneId = 1;
+}
+
+message ListaPrenotazioniRequest {
+  string clienteId = 1;
+}
+
+message ListaPrenotazioniResponse {
+  repeated PrenotazioneResponse prenotazioni = 1;
+}
+
+message PrenotazioneResponse {
+  string id = 1;
+  string clienteId = 2;
+  string trenoId = 3;
+  string bigliettoId = 4;
+  string dataCreazione = 5;
+  string scadenza = 6;
+  bool attiva = 7;
+}
+
+message BigliettoResponse {
+  string id = 1;
+  string clienteId = 2;
+  string tipo = 3;
+  string stato = 4;
+  string partenza = 5;
+  string arrivo = 6;
+  string dataViaggio = 7;
+  int32 distanzaKm = 8;
+  double prezzo = 9;
+}

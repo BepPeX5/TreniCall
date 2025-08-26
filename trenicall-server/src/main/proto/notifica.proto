@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.trenicall.server.grpc.notifica";
+option java_outer_classname = "NotificaProto";
+
+service NotificaService {
+  rpc SeguiTreno (SeguiTrenoRequest) returns (stream NotificaResponse);
+  rpc InviaNotifica (InviaNotificaRequest) returns (NotificaResponse);
+}
+
+message SeguiTrenoRequest {
+  string clienteId = 1;
+  string trenoId = 2;
+}
+
+message InviaNotificaRequest {
+  string clienteId = 1;
+  string canale = 2;
+  string messaggio = 3;
+}
+
+message NotificaResponse {
+  string id = 1;
+  string clienteId = 2;
+  string canale = 3;
+  string messaggio = 4;
+  string timestamp = 5;
+  bool letta = 6;
+}
