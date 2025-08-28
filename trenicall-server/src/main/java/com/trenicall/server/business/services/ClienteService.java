@@ -1,37 +1,33 @@
 package com.trenicall.server.business.services;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.trenicall.server.domain.entities.Cliente;
+import com.trenicall.server.domain.repositories.ClienteRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Service
+@Transactional
 public class ClienteService {
-    private final Set<String> clientiRegistrati = new HashSet<>();
-    private final Set<String> clientiFedelta = new HashSet<>();
 
-    public void registraCliente(String clienteId) {
-        clientiRegistrati.add(clienteId);
+    private final ClienteRepository clienteRepository;
+
+    public ClienteService(ClienteRepository clienteRepository) {
+        this.clienteRepository = clienteRepository;
     }
 
-    public boolean isRegistrato(String clienteId) {
-        return clientiRegistrati.contains(clienteId);
+    public Cliente registraCliente(Cliente cliente) {
+        return clienteRepository.save(cliente);
     }
 
-    public void abilitaFedelta(String clienteId) {
-        if (clientiRegistrati.contains(clienteId)) {
-            clientiFedelta.add(clienteId);
-        } else {
-            throw new IllegalStateException("Cliente non registrato");
-        }
+    public Cliente abilitaFedelta(String clienteId) {
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new IllegalStateException("Cliente non trovato"));
+        cliente.abilitaFedelta();
+        return clienteRepository.save(cliente);
     }
 
-    public boolean isFedelta(String clienteId) {
-        return clientiFedelta.contains(clienteId);
-    }
-
-    public Set<String> getClientiRegistrati() {
-        return clientiRegistrati;
-    }
-
-    public Set<String> getClientiFedelta() {
-        return clientiFedelta;
+    public Cliente getCliente(String clienteId) {
+        return clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new IllegalStateException("Cliente non trovato"));
     }
 }

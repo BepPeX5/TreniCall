@@ -6,50 +6,59 @@ import com.trenicall.server.business.patterns.factory.BigliettoFactory;
 import com.trenicall.server.business.patterns.factory.BigliettoFactoryImpl;
 import com.trenicall.server.business.patterns.state.states.StatoScaduto;
 import com.trenicall.server.domain.entities.Biglietto;
+import com.trenicall.server.domain.entities.Prenotazione;
+import com.trenicall.server.domain.repositories.BigliettoRepository;
+import com.trenicall.server.domain.repositories.PrenotazioneRepository;
 import com.trenicall.server.domain.valueobjects.TipoBiglietto;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+
+@Service
+@Transactional
 public class PrenotazioneService {
+
     private final BigliettoFactory factory = new BigliettoFactoryImpl();
     private final CommandManager commandManager = new CommandManager();
-    private final Map<String, Biglietto> prenotazioni = new HashMap<>();
-    private final Map<String, LocalDateTime> scadenze = new HashMap<>();
+    private final PrenotazioneRepository prenotazioneRepository;
+    private final BigliettoRepository bigliettoRepository;
 
-    public Biglietto creaPrenotazione(String clienteId, TipoBiglietto tipo, String partenza, String arrivo,
-                                      LocalDateTime dataViaggio, Integer distanzaKm, int minutiValidita) {
+    public PrenotazioneService(PrenotazioneRepository prenotazioneRepository, BigliettoRepository bigliettoRepository) {
+        this.prenotazioneRepository = prenotazioneRepository;
+        this.bigliettoRepository = bigliettoRepository;
+    }
+
+    public Prenotazione creaPrenotazione(String clienteId, TipoBiglietto tipo, String partenza, String arrivo,
+                                         LocalDateTime dataViaggio, Integer distanzaKm, int minutiValidita) {
         Biglietto biglietto = factory.creaBiglietto(tipo, partenza, arrivo, dataViaggio, distanzaKm, clienteId);
-        PrenotazioneCommand cmd = new PrenotazioneCommand(biglietto);
-        commandManager.executeCommand(cmd);
-        prenotazioni.put(biglietto.getId(), biglietto);
-        scadenze.put(biglietto.getId(), LocalDateTime.now().plusMinutes(minutiValidita));
-        return biglietto;
+        commandManager.executeCommand(new PrenotazioneCommand(biglietto));
+        bigliettoRepository.save(biglietto);
+        Prenotazione prenotazione = new Prenotazione(
+                biglietto.getId(), null, null, LocalDateTime.now(), minutiValidita, biglietto
+        );
+        return prenotazioneRepository.save(prenotazione);
     }
 
     public void verificaScadenze() {
         LocalDateTime now = LocalDateTime.now();
-        List<String> scadute = new ArrayList<>();
-        for (Map.Entry<String, LocalDateTime> entry : scadenze.entrySet()) {
-            if (entry.getValue().isBefore(now)) {
-                Biglietto b = prenotazioni.get(entry.getKey());
-                if (b != null) {
-                    b.setStato(new StatoScaduto());
-                    scadute.add(entry.getKey());
-                }
+        List<Prenotazione> prenotazioni = prenotazioneRepository.findAll();
+        for (Prenotazione p : prenotazioni) {
+            if (!p.isAttiva()) {
+                p.getBiglietto().setStato(new StatoScaduto());
+                prenotazioneRepository.delete(p);
             }
-        }
-        for (String id : scadute) {
-            scadenze.remove(id);
-            prenotazioni.remove(id);
         }
     }
 
     public Biglietto confermaAcquisto(String prenotazioneId, BiglietteriaService biglietteriaService) {
-        Biglietto prenotato = prenotazioni.get(prenotazioneId);
-        if (prenotato == null) {
-            throw new IllegalStateException("Prenotazione non trovata o scaduta");
-        }
+        Prenotazione prenotazione = prenotazioneRepository.findById(prenotazioneId)
+                .orElseThrow(() -> new IllegalStateException("Prenotazione non trovata o scaduta"));
+
+        Biglietto prenotato = prenotazione.getBiglietto();
         Biglietto acquistato = biglietteriaService.acquista(
                 prenotato.getClienteId(),
                 prenotato.getTipo(),
@@ -58,12 +67,12 @@ public class PrenotazioneService {
                 prenotato.getDataViaggio(),
                 prenotato.getDistanzaKm()
         );
-        prenotazioni.remove(prenotazioneId);
-        scadenze.remove(prenotazioneId);
+
+        prenotazioneRepository.delete(prenotazione);
         return acquistato;
     }
 
-    public Collection<Biglietto> getPrenotazioniAttive() {
-        return prenotazioni.values();
+    public Collection<Prenotazione> getPrenotazioniAttive() {
+        return prenotazioneRepository.findAll();
     }
 }

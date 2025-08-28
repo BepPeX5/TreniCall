@@ -1,46 +1,53 @@
 package com.trenicall.server.grpc.impl;
 
-import com.trenicall.server.grpc.notifica.InviaNotificaRequest;
+import com.trenicall.server.business.services.NotificaService;
 import com.trenicall.server.grpc.notifica.NotificaResponse;
 import com.trenicall.server.grpc.notifica.NotificaServiceGrpc;
-import com.trenicall.server.grpc.notifica.NotificaProto.*;
+import com.trenicall.server.grpc.notifica.InviaNotificaRequest;
 import com.trenicall.server.grpc.notifica.SeguiTrenoRequest;
 import io.grpc.stub.StreamObserver;
+import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
+@Service
 public class NotificaServiceImpl extends NotificaServiceGrpc.NotificaServiceImplBase {
 
-    private final Map<String, List<NotificaResponse>> notifiche = new ConcurrentHashMap<>();
+    private final NotificaService notificaService;
 
-    @Override
-    public void seguiTreno(SeguiTrenoRequest request, StreamObserver<NotificaResponse> responseObserver) {
-        NotificaResponse n = NotificaResponse.newBuilder()
-                .setId(UUID.randomUUID().toString())
-                .setClienteId(request.getClienteId())
-                .setCanale("PUSH")
-                .setMessaggio("Stai seguendo il treno " + request.getTrenoId())
-                .setTimestamp(new Date().toString())
-                .setLetta(false)
-                .build();
-        notifiche.computeIfAbsent(request.getClienteId(), k -> new ArrayList<>()).add(n);
-        responseObserver.onNext(n);
-        responseObserver.onCompleted();
+    public NotificaServiceImpl(NotificaService notificaService) {
+        this.notificaService = notificaService;
     }
 
     @Override
-    public void inviaNotifica(InviaNotificaRequest request, StreamObserver<NotificaResponse> responseObserver) {
-        NotificaResponse n = NotificaResponse.newBuilder()
+    public void inviaNotifica(InviaNotificaRequest request,
+                              StreamObserver<NotificaResponse> responseObserver) {
+        NotificaResponse response = NotificaResponse.newBuilder()
                 .setId(UUID.randomUUID().toString())
                 .setClienteId(request.getClienteId())
                 .setCanale(request.getCanale())
                 .setMessaggio(request.getMessaggio())
-                .setTimestamp(new Date().toString())
+                .setTimestamp(LocalDateTime.now().toString())
                 .setLetta(false)
                 .build();
-        notifiche.computeIfAbsent(request.getClienteId(), k -> new ArrayList<>()).add(n);
-        responseObserver.onNext(n);
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void seguiTreno(SeguiTrenoRequest request,
+                           StreamObserver<NotificaResponse> responseObserver) {
+        NotificaResponse response = NotificaResponse.newBuilder()
+                .setId(UUID.randomUUID().toString())
+                .setClienteId(request.getClienteId())
+                .setCanale("PUSH")
+                .setMessaggio("Sei iscritto alle notifiche sul treno " + request.getTrenoId())
+                .setTimestamp(LocalDateTime.now().toString())
+                .setLetta(false)
+                .build();
+        responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
 }
+

@@ -1,67 +1,97 @@
 package com.trenicall.server.grpc.impl;
 
+import com.trenicall.server.business.services.BiglietteriaService;
+import com.trenicall.server.business.services.PrenotazioneService;
+import com.trenicall.server.domain.entities.Biglietto;
+import com.trenicall.server.domain.entities.Prenotazione;
+import com.trenicall.server.domain.valueobjects.TipoBiglietto;
 import com.trenicall.server.grpc.biglietteria.BigliettoResponse;
 import com.trenicall.server.grpc.prenotazione.*;
-import com.trenicall.server.grpc.prenotazione.PrenotazioneProto.*;
-import com.trenicall.server.grpc.biglietteria.BiglietteriaProto.*;
 import io.grpc.stub.StreamObserver;
+import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.time.LocalDateTime;
+import java.util.Collection;
 
+@Service
 public class PrenotazioneServiceImpl extends PrenotazioneServiceGrpc.PrenotazioneServiceImplBase {
 
-    private final Map<String, PrenotazioneResponse> prenotazioni = new ConcurrentHashMap<>();
+    private final PrenotazioneService prenotazioneService;
+    private final BiglietteriaService biglietteriaService;
+
+    public PrenotazioneServiceImpl(PrenotazioneService prenotazioneService,
+                                   BiglietteriaService biglietteriaService) {
+        this.prenotazioneService = prenotazioneService;
+        this.biglietteriaService = biglietteriaService;
+    }
 
     @Override
-    public void creaPrenotazione(CreaPrenotazioneRequest request, StreamObserver<PrenotazioneResponse> responseObserver) {
-        String id = UUID.randomUUID().toString();
-        PrenotazioneResponse p = PrenotazioneResponse.newBuilder()
-                .setId(id)
-                .setClienteId(request.getClienteId())
-                .setTrenoId("TEMP_TRENO")
-                .setBigliettoId(UUID.randomUUID().toString())
-                .setDataCreazione(new Date().toString())
-                .setScadenza(new Date(System.currentTimeMillis() + request.getMinutiValidita() * 60000L).toString())
-                .setAttiva(true)
+    public void creaPrenotazione(CreaPrenotazioneRequest request,
+                                 StreamObserver<PrenotazioneResponse> responseObserver) {
+        Prenotazione p = prenotazioneService.creaPrenotazione(
+                request.getClienteId(),
+                TipoBiglietto.valueOf(request.getTipoBiglietto()),
+                request.getPartenza(),
+                request.getArrivo(),
+                LocalDateTime.parse(request.getDataViaggio()),
+                request.getDistanzaKm(),
+                request.getMinutiValidita()
+        );
+
+        PrenotazioneResponse response = PrenotazioneResponse.newBuilder()
+                .setId(p.getId())
+                .setClienteId(p.getCliente().getId())
+                .setBigliettoId(p.getBiglietto().getId())
+                .setDataCreazione(p.getDataCreazione().toString())
+                .setScadenza(p.getScadenza().toString())
+                .setAttiva(p.isAttiva())
                 .build();
-        prenotazioni.put(id, p);
-        responseObserver.onNext(p);
+
+        responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
 
     @Override
-    public void confermaAcquisto(ConfermaAcquistoRequest request, StreamObserver<BigliettoResponse> responseObserver) {
-        PrenotazioneResponse p = prenotazioni.get(request.getPrenotazioneId());
-        if (p == null) {
-            responseObserver.onError(new IllegalArgumentException("Prenotazione non trovata"));
-            return;
-        }
-        BigliettoResponse b = BigliettoResponse.newBuilder()
-                .setId(p.getBigliettoId())
-                .setClienteId(p.getClienteId())
-                .setTipo("REGIONALE")
-                .setStato("Pagato")
-                .setPartenza("TEMP_PARTENZA")
-                .setArrivo("TEMP_ARRIVO")
-                .setDataViaggio(new Date().toString())
-                .setDistanzaKm(100)
-                .setPrezzo(10.0)
+    public void confermaAcquisto(ConfermaAcquistoRequest request,
+                                 StreamObserver<BigliettoResponse> responseObserver) {
+        Biglietto b = prenotazioneService.confermaAcquisto(request.getPrenotazioneId(), biglietteriaService);
+
+        BigliettoResponse response = BigliettoResponse.newBuilder()
+                .setId(b.getId())
+                .setClienteId(b.getClienteId())
+                .setTipo(b.getTipo().name())
+                .setPartenza(b.getPartenza())
+                .setArrivo(b.getArrivo())
+                .setDataViaggio(b.getDataViaggio().toString())
+                .setDistanzaKm(b.getDistanzaKm())
+                .setPrezzo(b.getPrezzo())
                 .build();
-        responseObserver.onNext(b);
+
+        responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
 
     @Override
-    public void listaPrenotazioniAttive(ListaPrenotazioniRequest request, StreamObserver<ListaPrenotazioniResponse> responseObserver) {
-        List<PrenotazioneResponse> attive = new ArrayList<>();
-        for (PrenotazioneResponse p : prenotazioni.values()) {
-            if (p.getClienteId().equals(request.getClienteId()) && p.getAttiva()) {
-                attive.add(p);
-            }
-        }
-        ListaPrenotazioniResponse resp = ListaPrenotazioniResponse.newBuilder().addAllPrenotazioni(attive).build();
-        responseObserver.onNext(resp);
+    public void listaPrenotazioniAttive(ListaPrenotazioniRequest request,
+                                        StreamObserver<ListaPrenotazioniResponse> responseObserver) {
+        Collection<Prenotazione> attive = prenotazioneService.getPrenotazioniAttive();
+        ListaPrenotazioniResponse.Builder builder = ListaPrenotazioniResponse.newBuilder();
+
+        attive.forEach(p -> {
+            PrenotazioneResponse response = PrenotazioneResponse.newBuilder()
+                    .setId(p.getId())
+                    .setClienteId(p.getCliente().getId())
+                    .setBigliettoId(p.getBiglietto().getId())
+                    .setDataCreazione(p.getDataCreazione().toString())
+                    .setScadenza(p.getScadenza().toString())
+                    .setAttiva(p.isAttiva())
+                    .build();
+            builder.addPrenotazioni(response);
+        });
+
+        responseObserver.onNext(builder.build());
         responseObserver.onCompleted();
     }
 }
+
+
