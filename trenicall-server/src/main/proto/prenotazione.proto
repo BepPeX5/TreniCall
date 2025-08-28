@@ -4,6 +4,8 @@ option java_multiple_files = true;
 option java_package = "com.trenicall.server.grpc.prenotazione";
 option java_outer_classname = "PrenotazioneProto";
 
+import "biglietteria.proto";
+
 service PrenotazioneService {
   rpc CreaPrenotazione (CreaPrenotazioneRequest) returns (PrenotazioneResponse);
   rpc ConfermaAcquisto (ConfermaAcquistoRequest) returns (BigliettoResponse);
@@ -40,16 +42,4 @@ message PrenotazioneResponse {
   string dataCreazione = 5;
   string scadenza = 6;
   bool attiva = 7;
-}
-
-message BigliettoResponse {
-  string id = 1;
-  string clienteId = 2;
-  string tipo = 3;
-  string stato = 4;
-  string partenza = 5;
-  string arrivo = 6;
-  string dataViaggio = 7;
-  int32 distanzaKm = 8;
-  double prezzo = 9;
 }
