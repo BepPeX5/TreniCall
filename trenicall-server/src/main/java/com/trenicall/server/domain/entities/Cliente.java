@@ -1,15 +1,25 @@
 package com.trenicall.server.domain.entities;
 
+import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+@Entity
+@Table(name = "clienti")
 public class Cliente {
-    private final String id;
+
+    @Id
+    private String id;
+
     private String nome;
     private String email;
     private String telefono;
     private boolean fedelta;
+
+    @OneToMany
     private final Set<Biglietto> biglietti = new HashSet<>();
+
+    public Cliente() {}
 
     public Cliente(String id, String nome, String email, String telefono) {
         this.id = id;

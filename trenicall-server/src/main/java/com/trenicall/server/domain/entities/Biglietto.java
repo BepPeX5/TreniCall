@@ -2,19 +2,32 @@ package com.trenicall.server.domain.entities;
 
 import com.trenicall.server.business.patterns.state.StatoBiglietto;
 import com.trenicall.server.domain.valueobjects.TipoBiglietto;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "biglietti")
 public class Biglietto {
+
+    @Id
     private String id;
+
     private String clienteId;
-    private StatoBiglietto stato;
+
+    @Enumerated(EnumType.STRING)
     private TipoBiglietto tipo;
+
     private String partenza;
     private String arrivo;
     private LocalDateTime dataViaggio;
     private Integer distanzaKm;
     private Double prezzo;
+
+    @Transient
+    private StatoBiglietto stato;
+
+    public Biglietto() {}
 
     public Biglietto(String id, String clienteId, StatoBiglietto stato, TipoBiglietto tipo,
                      String partenza, String arrivo, LocalDateTime dataViaggio, Integer distanzaKm) {

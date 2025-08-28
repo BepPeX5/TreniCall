@@ -1,14 +1,22 @@
 package com.trenicall.server.domain.entities;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "notifiche")
 public class Notifica {
-    private final String id;
-    private final String clienteId;
-    private final String canale; // EMAIL, SMS, PUSH
-    private final String messaggio;
-    private final LocalDateTime timestamp;
+
+    @Id
+    private String id;
+
+    private String clienteId;
+    private String canale;
+    private String messaggio;
+    private LocalDateTime timestamp;
     private boolean letta;
+
+    public Notifica() {}
 
     public Notifica(String id, String clienteId, String canale, String messaggio) {
         this.id = id;

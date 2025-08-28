@@ -1,17 +1,32 @@
 package com.trenicall.server.domain.entities;
 
 import com.trenicall.server.business.patterns.state.states.StatoPrenotato;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "prenotazioni")
 public class Prenotazione {
-    private final String id;
-    private final Cliente cliente;
-    private final Treno treno;
-    private final LocalDateTime dataCreazione;
-    private final LocalDateTime scadenza;
+
+    @Id
+    private String id;
+
+    @ManyToOne
+    private Cliente cliente;
+
+    @ManyToOne
+    private Treno treno;
+
+    private LocalDateTime dataCreazione;
+    private LocalDateTime scadenza;
+
+    @OneToOne
     private Biglietto biglietto;
+
     private boolean attiva;
+
+    public Prenotazione() {}
 
     public Prenotazione(String id, Cliente cliente, Treno treno, LocalDateTime dataCreazione, int minutiValidita, Biglietto biglietto) {
         this.id = id;

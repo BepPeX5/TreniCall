@@ -6,9 +6,21 @@
   <component name="ChangeListManager">
     <list default="true" id="7b2f60aa-5bda-4144-97a6-af725741fe10" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-common/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-common/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-admin/src/test/java/com/trenicall/AppTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-admin/src/test/java/com/trenicall/AppTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-client/src/test/java/com/trenicall/AppTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-client/src/test/java/com/trenicall/AppTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/trenicall-server/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/proto/prenotazione.proto" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/proto/prenotazione.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/TrenicallServerApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/TrenicallServerApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/BiglietteriaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/BiglietteriaService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/ClienteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/ClienteService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/NotificaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/NotificaService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/PrenotazioneService.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/PrenotazioneService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Biglietto.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Biglietto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Cliente.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Cliente.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Notifica.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Notifica.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Prenotazione.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Prenotazione.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Promozione.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Promozione.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Tratta.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Tratta.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Treno.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/entities/Treno.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,8 +31,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Enum" />
-        <option value="Interface" />
         <option value="Class" />
+        <option value="Interface" />
       </list>
     </option>
   </component>
@@ -55,6 +67,7 @@
     "git-widget-placeholder": "main",
     "jdk.selected.JAVA_MODULE": "19",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/Programmi utili/UNICAL/3 anno II semestre/Ingegneria del software/project/TreniCall/trenicall-server/src/main/java/com/trenicall/server/domain",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -157,7 +170,8 @@
       <workItem from="1755964573175" duration="4925000" />
       <workItem from="1756025772663" duration="9915000" />
       <workItem from="1756129874834" duration="10006000" />
-      <workItem from="1756287549585" duration="5874000" />
+      <workItem from="1756287549585" duration="6186000" />
+      <workItem from="1756371947290" duration="4105000" />
     </task>
     <servers />
   </component>

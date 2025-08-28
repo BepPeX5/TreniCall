@@ -1,10 +1,19 @@
 package com.trenicall.server.domain.entities;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "tratte")
 public class Tratta {
-    private final String id;
-    private final String stazionePartenza;
-    private final String stazioneArrivo;
-    private final int distanzaKm;
+
+    @Id
+    private String id;
+
+    private String stazionePartenza;
+    private String stazioneArrivo;
+    private int distanzaKm;
+
+    public Tratta() {}
 
     public Tratta(String id, String stazionePartenza, String stazioneArrivo, int distanzaKm) {
         this.id = id;

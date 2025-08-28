@@ -1,18 +1,31 @@
 package com.trenicall.server.domain.entities;
 
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "treni")
 public class Treno {
-    private final String id;
-    private final String nome;
-    private final Tratta tratta;
+
+    @Id
+    private String id;
+
+    private String nome;
+
+    @ManyToOne
+    private Tratta tratta;
+
     private int postiTotali;
     private int postiDisponibili;
     private String binarioPartenza;
     private boolean cancellato;
     private int ritardoMinuti;
+
+    @ManyToMany
     private final List<Cliente> passeggeri = new ArrayList<>();
+
+    public Treno() {}
 
     public Treno(String id, String nome, Tratta tratta, int postiTotali, String binarioPartenza) {
         this.id = id;

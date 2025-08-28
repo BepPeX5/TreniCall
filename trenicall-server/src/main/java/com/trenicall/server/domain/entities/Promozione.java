@@ -1,16 +1,24 @@
 package com.trenicall.server.domain.entities;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "promozioni")
 public class Promozione {
-    private final String id;
-    private final String nome;
-    private final double percentualeSconto;
-    private final LocalDateTime inizio;
-    private final LocalDateTime fine;
-    private final String trattaPartenza;
-    private final String trattaArrivo;
-    private final boolean soloFedelta;
+
+    @Id
+    private String id;
+
+    private String nome;
+    private double percentualeSconto;
+    private LocalDateTime inizio;
+    private LocalDateTime fine;
+    private String trattaPartenza;
+    private String trattaArrivo;
+    private boolean soloFedelta;
+
+    public Promozione() {}
 
     public Promozione(String id, String nome, double percentualeSconto, LocalDateTime inizio, LocalDateTime fine,
                       String trattaPartenza, String trattaArrivo, boolean soloFedelta) {
