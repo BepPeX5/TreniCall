@@ -9,25 +9,16 @@ import java.time.LocalDateTime;
 public class BigliettoFactoryImpl implements BigliettoFactory {
 
     @Override
-    public Biglietto creaBiglietto(TipoBiglietto tipo, String partenza, String arrivo,
-                                   LocalDateTime dataViaggio, Integer distanzaKm, String clienteId) {
-        String idPrefix;
-        switch (tipo) {
-            case REGIONALE:
-                idPrefix = "REG-";
-                break;
-            case INTERCITY:
-                idPrefix = "INT-";
-                break;
-            case FRECCIA_ROSSA:
-                idPrefix = "FR-";
-                break;
-            default:
-                throw new IllegalArgumentException("Tipo biglietto non supportato: " + tipo);
-        }
+    public Biglietto creaBiglietto(TipoBiglietto tipo,
+                                   String partenza,
+                                   String arrivo,
+                                   LocalDateTime dataViaggio,
+                                   Integer distanzaKm,
+                                   String clienteId) {
+        String id = tipo.getCodice() + "-" + System.currentTimeMillis();
 
         return new Biglietto(
-                idPrefix + System.currentTimeMillis(),
+                id,
                 clienteId,
                 new StatoPrenotato(),
                 tipo,
@@ -38,4 +29,5 @@ public class BigliettoFactoryImpl implements BigliettoFactory {
         );
     }
 }
+
 

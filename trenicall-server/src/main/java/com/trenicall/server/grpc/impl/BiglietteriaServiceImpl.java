@@ -30,72 +30,104 @@ public class BiglietteriaServiceImpl extends BiglietteriaServiceGrpc.Biglietteri
     @Override
     public void ricercaBiglietti(RicercaBigliettiRequest request,
                                  StreamObserver<RicercaBigliettiResponse> responseObserver) {
-        RicercaBiglietti ricerca = new RicercaBiglietti.Builder()
-                .partenza(request.getPartenza())
-                .arrivo(request.getArrivo())
-                .dataViaggio(LocalDateTime.parse(request.getDataViaggio()))
-                .classeServizio(request.getClasseServizio())
-                .soloAltaVelocita(request.getSoloAltaVelocita())
-                .includiPromozioni(request.getIncludiPromozioni())
-                .build();
+        try {
+            RicercaBiglietti ricerca = new RicercaBiglietti.Builder()
+                    .partenza(request.getPartenza())
+                    .arrivo(request.getArrivo())
+                    .dataViaggio(LocalDateTime.parse(request.getDataViaggio()))
+                    .classeServizio(request.getClasseServizio())
+                    .soloAltaVelocita(request.getSoloAltaVelocita())
+                    .includiPromozioni(request.getIncludiPromozioni())
+                    .build();
 
-        List<Biglietto> risultati = biglietteriaService.ricerca(ricerca);
+            List<Biglietto> risultati = biglietteriaService.ricerca(ricerca);
 
-
-        RicercaBigliettiResponse.Builder response = RicercaBigliettiResponse.newBuilder();
-        risultati.forEach(b -> response.addRisultati(toResponse(b)));
-        responseObserver.onNext(response.build());
-        responseObserver.onCompleted();
+            RicercaBigliettiResponse.Builder response = RicercaBigliettiResponse.newBuilder();
+            risultati.forEach(b -> response.addRisultati(toResponse(b)));
+            responseObserver.onNext(response.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(io.grpc.Status.INTERNAL
+                    .withDescription("Errore nella ricerca: " + e.getMessage())
+                    .withCause(e)
+                    .asRuntimeException());
+        }
     }
 
     @Override
     public void acquistaBiglietto(AcquistaBigliettoRequest request,
                                   StreamObserver<BigliettoResponse> responseObserver) {
-        Biglietto biglietto = biglietteriaService.acquista(
-                request.getClienteId(),
-                TipoBiglietto.valueOf(request.getTipoBiglietto()),
-                request.getPartenza(),
-                request.getArrivo(),
-                java.time.LocalDateTime.parse(request.getDataViaggio()),
-                request.getDistanzaKm()
-        );
-        responseObserver.onNext(toResponse(biglietto));
-        responseObserver.onCompleted();
+        try {
+            Biglietto biglietto = biglietteriaService.acquista(
+                    request.getClienteId(),
+                    TipoBiglietto.valueOf(request.getTipoBiglietto()),
+                    request.getPartenza(),
+                    request.getArrivo(),
+                    LocalDateTime.parse(request.getDataViaggio()),
+                    request.getDistanzaKm()
+            );
+            responseObserver.onNext(toResponse(biglietto));
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(io.grpc.Status.INTERNAL
+                    .withDescription("Errore nell'acquisto: " + e.getMessage())
+                    .withCause(e)
+                    .asRuntimeException());
+        }
     }
 
     @Override
     public void modificaBiglietto(ModificaBigliettoRequest request,
                                   StreamObserver<BigliettoResponse> responseObserver) {
-        Biglietto biglietto = biglietteriaService.getArchivioBiglietti().stream()
-                .filter(b -> b.getId().equals(request.getBigliettoId()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Biglietto non trovato"));
+        try {
+            Biglietto biglietto = biglietteriaService.getArchivioBiglietti().stream()
+                    .filter(b -> b.getId().equals(request.getBigliettoId()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Biglietto non trovato"));
 
-        Biglietto modificato = biglietteriaService.modifica(
-                biglietto,
-                java.time.LocalDateTime.parse(request.getNuovaData())
-        );
-        responseObserver.onNext(toResponse(modificato));
-        responseObserver.onCompleted();
+            Biglietto modificato = biglietteriaService.modifica(
+                    biglietto,
+                    LocalDateTime.parse(request.getNuovaData())
+            );
+            responseObserver.onNext(toResponse(modificato));
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(io.grpc.Status.INTERNAL
+                    .withDescription("Errore nella modifica: " + e.getMessage())
+                    .withCause(e)
+                    .asRuntimeException());
+        }
     }
 
     @Override
     public void listaBigliettiCliente(ListaBigliettiClienteRequest request,
                                       StreamObserver<ListaBigliettiClienteResponse> responseObserver) {
-        ListaBigliettiClienteResponse.Builder builder = ListaBigliettiClienteResponse.newBuilder();
-        biglietteriaService.getArchivioBiglietti().stream()
-                .filter(b -> b.getClienteId().equals(request.getClienteId()))
-                .forEach(b -> builder.addBiglietti(toResponse(b)));
-        responseObserver.onNext(builder.build());
-        responseObserver.onCompleted();
+        try {
+            ListaBigliettiClienteResponse.Builder builder = ListaBigliettiClienteResponse.newBuilder();
+            biglietteriaService.getArchivioBiglietti().stream()
+                    .filter(b -> b.getClienteId().equals(request.getClienteId()))
+                    .forEach(b -> builder.addBiglietti(toResponse(b)));
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(io.grpc.Status.INTERNAL
+                    .withDescription("Errore nel recupero lista: " + e.getMessage())
+                    .withCause(e)
+                    .asRuntimeException());
+        }
     }
 
     private BigliettoResponse toResponse(Biglietto b) {
+        String stato = "UNKNOWN";
+        if (b.getStato() != null) {
+            stato = b.getStato().getNomeStato();
+        }
+
         return BigliettoResponse.newBuilder()
                 .setId(b.getId())
                 .setClienteId(b.getClienteId())
                 .setTipo(b.getTipo().name())
-                .setStato(b.getStato().getNomeStato())
+                .setStato(stato)
                 .setPartenza(b.getPartenza())
                 .setArrivo(b.getArrivo())
                 .setDataViaggio(b.getDataViaggio().toString())
@@ -104,4 +136,3 @@ public class BiglietteriaServiceImpl extends BiglietteriaServiceGrpc.Biglietteri
                 .build();
     }
 }
-

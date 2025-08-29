@@ -7,10 +7,16 @@ import java.time.LocalDateTime;
 
 public class ModificaBigliettoCommand implements Command {
     private final Biglietto biglietto;
-    private LocalDateTime nuovaData;
+    private final LocalDateTime nuovaData;
     private LocalDateTime dataPrecedente;
 
     public ModificaBigliettoCommand(Biglietto biglietto, LocalDateTime nuovaData) {
+        if (biglietto == null) {
+            throw new IllegalArgumentException("Il biglietto non può essere null");
+        }
+        if (nuovaData == null) {
+            throw new IllegalArgumentException("La nuova data non può essere null");
+        }
         this.biglietto = biglietto;
         this.nuovaData = nuovaData;
     }
@@ -28,3 +34,4 @@ public class ModificaBigliettoCommand implements Command {
         }
     }
 }
+

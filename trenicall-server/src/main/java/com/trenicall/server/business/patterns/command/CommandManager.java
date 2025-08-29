@@ -6,6 +6,9 @@ public class CommandManager {
     private final Stack<Command> history = new Stack<>();
 
     public void executeCommand(Command command) {
+        if (command == null) {
+            throw new IllegalArgumentException("Il comando non può essere null");
+        }
         command.execute();
         history.push(command);
     }
@@ -17,3 +20,4 @@ public class CommandManager {
         }
     }
 }
+

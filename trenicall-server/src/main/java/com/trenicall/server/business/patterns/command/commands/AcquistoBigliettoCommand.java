@@ -10,6 +10,9 @@ public class AcquistoBigliettoCommand implements Command {
     private StatoPrenotato statoPrecedente;
 
     public AcquistoBigliettoCommand(Biglietto biglietto) {
+        if (biglietto == null) {
+            throw new IllegalArgumentException("Il biglietto non può essere null");
+        }
         this.biglietto = biglietto;
     }
 
@@ -18,6 +21,8 @@ public class AcquistoBigliettoCommand implements Command {
         if (biglietto.getStato() instanceof StatoPrenotato) {
             statoPrecedente = (StatoPrenotato) biglietto.getStato();
             biglietto.setStato(new StatoPagato());
+        } else {
+            throw new IllegalStateException("Il biglietto deve essere in stato PRENOTATO per poter essere acquistato");
         }
     }
 
