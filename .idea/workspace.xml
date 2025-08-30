@@ -6,18 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="7b2f60aa-5bda-4144-97a6-af725741fe10" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/TrenicallServerApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/TrenicallServerApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/BiglietteriaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/BiglietteriaService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/ClienteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/ClienteService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/NotificaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/NotificaService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/PrenotazioneService.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/PrenotazioneService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/PromozioneService.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/PromozioneService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/repositories/BigliettoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/domain/repositories/BigliettoRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/BiglietteriaServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/BiglietteriaServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/ClienteServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/ClienteServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/NotificaServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/NotificaServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/PrenotazioneServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/PrenotazioneServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/PromozioneServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/PromozioneServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/proto/biglietteria.proto" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/proto/biglietteria.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/proto/cliente.proto" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/proto/cliente.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/proto/notifica.proto" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/proto/notifica.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/proto/prenotazione.proto" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/proto/prenotazione.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/proto/promozione.proto" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/proto/promozione.proto" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +45,12 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "JUnit.BiglietteriaServiceIntegrationTest.executor": "Run",
+    "JUnit.BiglietteriaServiceTest.executor": "Run",
+    "JUnit.ClienteServiceTest.executor": "Run",
+    "JUnit.NotificaServiceTest.executor": "Run",
+    "JUnit.PrenotazioneServiceTest.executor": "Run",
+    "JUnit.PromozioneServiceTest.executor": "Run",
     "Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor": "Run",
     "Maven.trenicall-parent [clean].executor": "Run",
     "Maven.trenicall-parent [compile].executor": "Run",
@@ -64,7 +63,7 @@
     "git-widget-placeholder": "main",
     "jdk.selected.JAVA_MODULE": "19",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/Programmi utili/UNICAL/3 anno II semestre/Ingegneria del software/project/TreniCall/trenicall-server/src/main/java/com/trenicall/server/domain",
+    "last_opened_file_path": "D:/Programmi utili/UNICAL/3 anno II semestre/Ingegneria del software/project/TreniCall/trenicall-server/src/main",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -78,12 +77,93 @@
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Programmi utili\UNICAL\3 anno II semestre\Ingegneria del software\project\TreniCall\trenicall-server\src\main" />
+      <recent name="D:\Programmi utili\UNICAL\3 anno II semestre\Ingegneria del software\project\TreniCall\trenicall-server\src\main\java\com\trenicall\server\grpc" />
+    </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.trenicall.server.domain" />
+      <recent name="com.trenicall.server.config" />
       <recent name="com.trenicall.server.business.patterns.command" />
       <recent name="com.trenicall.server.business.patterns.state" />
     </key>
   </component>
-  <component name="RunManager" selected="Docker.docker-compose.yml: Compose Deployment">
+  <component name="RunManager" selected="JUnit.BiglietteriaServiceIntegrationTest">
+    <configuration name="BiglietteriaServiceIntegrationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="trenicall-server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.trenicall.server.integration.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.trenicall.server.integration" />
+      <option name="MAIN_CLASS_NAME" value="com.trenicall.server.integration.BiglietteriaServiceIntegrationTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ClienteServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="trenicall-server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.trenicall.server.business.services.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.trenicall.server.business.services" />
+      <option name="MAIN_CLASS_NAME" value="com.trenicall.server.business.services.ClienteServiceTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NotificaServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="trenicall-server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.trenicall.server.business.services.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.trenicall.server.business.services" />
+      <option name="MAIN_CLASS_NAME" value="com.trenicall.server.business.services.NotificaServiceTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PrenotazioneServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="trenicall-server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.trenicall.server.business.services.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.trenicall.server.business.services" />
+      <option name="MAIN_CLASS_NAME" value="com.trenicall.server.business.services.PrenotazioneServiceTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PromozioneServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="trenicall-server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.trenicall.server.business.services.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.trenicall.server.business.services" />
+      <option name="MAIN_CLASS_NAME" value="com.trenicall.server.business.services.PromozioneServiceTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="TrenicallServerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
       <module name="trenicall-server" />
@@ -95,14 +175,6 @@
     <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
       <deployment type="docker-compose.yml">
         <settings />
-      </deployment>
-      <method v="2" />
-    </configuration>
-    <configuration name="docker-compose.yml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
-      <deployment type="docker-compose.yml">
-        <settings>
-          <option name="sourceFilePath" value="docker-compose.yml" />
-        </settings>
       </deployment>
       <method v="2" />
     </configuration>
@@ -142,7 +214,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+        <item itemvalue="JUnit.BiglietteriaServiceIntegrationTest" />
+        <item itemvalue="JUnit.NotificaServiceTest" />
+        <item itemvalue="JUnit.PromozioneServiceTest" />
+        <item itemvalue="JUnit.PrenotazioneServiceTest" />
+        <item itemvalue="JUnit.ClienteServiceTest" />
       </list>
     </recent_temporary>
   </component>
@@ -168,7 +244,7 @@
       <workItem from="1756025772663" duration="9915000" />
       <workItem from="1756129874834" duration="10006000" />
       <workItem from="1756287549585" duration="6186000" />
-      <workItem from="1756371947290" duration="8267000" />
+      <workItem from="1756371947290" duration="26056000" />
     </task>
     <servers />
   </component>
