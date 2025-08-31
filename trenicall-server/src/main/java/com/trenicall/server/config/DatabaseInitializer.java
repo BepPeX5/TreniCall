@@ -43,13 +43,8 @@ public class DatabaseInitializer implements CommandLineRunner {
     private void initializeDatabase() {
         List<String> stazioni = Arrays.asList(
                 "Roma Termini", "Milano Centrale", "Napoli Centrale", "Torino Porta Nuova",
-                "Firenze Santa Maria Novella", "Bologna Centrale", "Venice Santa Lucia", "Bari Centrale",
-                "Palermo Centrale", "Genova Piazza Principe", "Verona Porta Nuova", "Trieste Centrale",
-                "Padova", "Brescia", "Parma", "Modena", "Reggio Emilia AV", "Piacenza",
-                "Rimini", "Ancona", "Pescara Centrale", "Foggia", "Lecce", "Brindisi",
-                "Taranto", "Cosenza", "Reggio Calabria Centrale", "Catania Centrale", "Messina Centrale",
-                "Cagliari", "Sassari", "Bolzano", "Trento", "Udine", "Perugia",
-                "L'Aquila", "Campobasso", "Potenza Centrale", "Catanzaro Lido", "Aosta"
+                "Firenze Santa Maria Novella", "Bologna Centrale", "Venice Santa Lucia",
+                "Bari Centrale", "Palermo Centrale", "Genova Piazza Principe", "Cosenza"
         );
 
         Map<String, Map<String, Integer>> distanze = createDistanceMatrix();
@@ -60,8 +55,7 @@ public class DatabaseInitializer implements CommandLineRunner {
                     String partenza = stazioni.get(i);
                     String arrivo = stazioni.get(j);
 
-                    int distanza = getDistance(partenza, arrivo, distanze);
-
+                    int distanza = distanze.get(partenza).get(arrivo);
                     String trattaId = "T" + String.format("%03d", i) + String.format("%03d", j);
 
                     Tratta tratta = new Tratta(trattaId, partenza, arrivo, distanza);
@@ -73,7 +67,6 @@ public class DatabaseInitializer implements CommandLineRunner {
         }
 
         createSampleClients();
-
         createSamplePromotions();
     }
 
@@ -126,7 +119,7 @@ public class DatabaseInitializer implements CommandLineRunner {
         roma.put("Bari Centrale", 457);
         roma.put("Palermo Centrale", 933);
         roma.put("Genova Piazza Principe", 501);
-        roma.put("Verona Porta Nuova", 474);
+        roma.put("Cosenza", 492);
         distances.put("Roma Termini", roma);
 
         Map<String, Integer> milano = new HashMap<>();
@@ -139,7 +132,7 @@ public class DatabaseInitializer implements CommandLineRunner {
         milano.put("Bari Centrale", 864);
         milano.put("Palermo Centrale", 1157);
         milano.put("Genova Piazza Principe", 142);
-        milano.put("Verona Porta Nuova", 157);
+        milano.put("Cosenza", 1050);
         distances.put("Milano Centrale", milano);
 
         Map<String, Integer> napoli = new HashMap<>();
@@ -152,57 +145,113 @@ public class DatabaseInitializer implements CommandLineRunner {
         napoli.put("Bari Centrale", 261);
         napoli.put("Palermo Centrale", 426);
         napoli.put("Genova Piazza Principe", 669);
-        napoli.put("Verona Porta Nuova", 647);
+        napoli.put("Cosenza", 277);
         distances.put("Napoli Centrale", napoli);
 
+        Map<String, Integer> torino = new HashMap<>();
+        torino.put("Roma Termini", 669);
+        torino.put("Milano Centrale", 158);
+        torino.put("Napoli Centrale", 841);
+        torino.put("Firenze Santa Maria Novella", 456);
+        torino.put("Bologna Centrale", 376);
+        torino.put("Venice Santa Lucia", 425);
+        torino.put("Bari Centrale", 1022);
+        torino.put("Palermo Centrale", 1315);
+        torino.put("Genova Piazza Principe", 168);
+        torino.put("Cosenza", 1208);
+        distances.put("Torino Porta Nuova", torino);
+
+        Map<String, Integer> firenze = new HashMap<>();
+        firenze.put("Roma Termini", 273);
+        firenze.put("Milano Centrale", 298);
+        firenze.put("Napoli Centrale", 476);
+        firenze.put("Torino Porta Nuova", 456);
+        firenze.put("Bologna Centrale", 105);
+        firenze.put("Venice Santa Lucia", 255);
+        firenze.put("Bari Centrale", 561);
+        firenze.put("Palermo Centrale", 657);
+        firenze.put("Genova Piazza Principe", 228);
+        firenze.put("Cosenza", 769);
+        distances.put("Firenze Santa Maria Novella", firenze);
+
+        Map<String, Integer> bologna = new HashMap<>();
+        bologna.put("Roma Termini", 378);
+        bologna.put("Milano Centrale", 218);
+        bologna.put("Napoli Centrale", 594);
+        bologna.put("Torino Porta Nuova", 376);
+        bologna.put("Firenze Santa Maria Novella", 105);
+        bologna.put("Venice Santa Lucia", 150);
+        bologna.put("Bari Centrale", 679);
+        bologna.put("Palermo Centrale", 872);
+        bologna.put("Genova Piazza Principe", 328);
+        bologna.put("Cosenza", 887);
+        distances.put("Bologna Centrale", bologna);
+
+        Map<String, Integer> venezia = new HashMap<>();
+        venezia.put("Roma Termini", 528);
+        venezia.put("Milano Centrale", 267);
+        venezia.put("Napoli Centrale", 701);
+        venezia.put("Torino Porta Nuova", 425);
+        venezia.put("Firenze Santa Maria Novella", 255);
+        venezia.put("Bologna Centrale", 150);
+        venezia.put("Bari Centrale", 729);
+        venezia.put("Palermo Centrale", 1022);
+        venezia.put("Genova Piazza Principe", 408);
+        venezia.put("Cosenza", 937);
+        distances.put("Venice Santa Lucia", venezia);
+
+        Map<String, Integer> bari = new HashMap<>();
+        bari.put("Roma Termini", 457);
+        bari.put("Milano Centrale", 864);
+        bari.put("Napoli Centrale", 261);
+        bari.put("Torino Porta Nuova", 1022);
+        bari.put("Firenze Santa Maria Novella", 561);
+        bari.put("Bologna Centrale", 679);
+        bari.put("Venice Santa Lucia", 729);
+        bari.put("Palermo Centrale", 687);
+        bari.put("Genova Piazza Principe", 863);
+        bari.put("Cosenza", 358);
+        distances.put("Bari Centrale", bari);
+
+        Map<String, Integer> palermo = new HashMap<>();
+        palermo.put("Roma Termini", 933);
+        palermo.put("Milano Centrale", 1157);
+        palermo.put("Napoli Centrale", 426);
+        palermo.put("Torino Porta Nuova", 1315);
+        palermo.put("Firenze Santa Maria Novella", 657);
+        palermo.put("Bologna Centrale", 872);
+        palermo.put("Venice Santa Lucia", 1022);
+        palermo.put("Bari Centrale", 687);
+        palermo.put("Genova Piazza Principe", 1156);
+        palermo.put("Cosenza", 477);
+        distances.put("Palermo Centrale", palermo);
+
+        Map<String, Integer> genova = new HashMap<>();
+        genova.put("Roma Termini", 501);
+        genova.put("Milano Centrale", 142);
+        genova.put("Napoli Centrale", 669);
+        genova.put("Torino Porta Nuova", 168);
+        genova.put("Firenze Santa Maria Novella", 228);
+        genova.put("Bologna Centrale", 328);
+        genova.put("Venice Santa Lucia", 408);
+        genova.put("Bari Centrale", 863);
+        genova.put("Palermo Centrale", 1156);
+        genova.put("Cosenza", 1040);
+        distances.put("Genova Piazza Principe", genova);
+
+        Map<String, Integer> cosenza = new HashMap<>();
+        cosenza.put("Roma Termini", 492);
+        cosenza.put("Milano Centrale", 1050);
+        cosenza.put("Napoli Centrale", 277);
+        cosenza.put("Torino Porta Nuova", 1208);
+        cosenza.put("Firenze Santa Maria Novella", 769);
+        cosenza.put("Bologna Centrale", 887);
+        cosenza.put("Venice Santa Lucia", 937);
+        cosenza.put("Bari Centrale", 358);
+        cosenza.put("Palermo Centrale", 477);
+        cosenza.put("Genova Piazza Principe", 1040);
+        distances.put("Cosenza", cosenza);
 
         return distances;
-    }
-
-    private int getDistance(String partenza, String arrivo, Map<String, Map<String, Integer>> distances) {
-
-        if (distances.containsKey(partenza) && distances.get(partenza).containsKey(arrivo)) {
-            return distances.get(partenza).get(arrivo);
-        }
-
-        if (distances.containsKey(arrivo) && distances.get(arrivo).containsKey(partenza)) {
-            return distances.get(arrivo).get(partenza);
-        }
-
-        return calculateApproximateDistance(partenza, arrivo);
-    }
-
-    private int calculateApproximateDistance(String partenza, String arrivo) {
-        // Mappa approssimativa delle regioni
-        Map<String, Integer> regioniNord = Map.of(
-                "Milano Centrale", 1, "Torino Porta Nuova", 1, "Genova Piazza Principe", 1,
-                "Verona Porta Nuova", 1, "Venice Santa Lucia", 1, "Bologna Centrale", 2,
-                "Brescia", 1, "Padova", 1, "Trieste Centrale", 1, "Bolzano", 1
-        );
-
-        Map<String, Integer> regioniCentro = Map.of(
-                "Roma Termini", 3, "Firenze Santa Maria Novella", 3, "Perugia", 3,
-                "Ancona", 3, "Pescara Centrale", 3
-        );
-
-        Map<String, Integer> regioniSud = Map.of(
-                "Napoli Centrale", 4, "Bari Centrale", 4, "Lecce", 4,
-                "Brindisi", 4, "Taranto", 4, "Cosenza", 4, "Reggio Calabria", 5,
-                "Palermo Centrale", 5, "Messina Centrale", 5, "Catania Centrale", 5
-        );
-
-        int regionePartenza = getRegion(partenza, regioniNord, regioniCentro, regioniSud);
-        int regioneArrivo = getRegion(arrivo, regioniNord, regioniCentro, regioniSud);
-
-        int differenzaRegioni = Math.abs(regionePartenza - regioneArrivo);
-
-        return 150 + (differenzaRegioni * 200) + (int)(Math.random() * 100);
-    }
-
-    private int getRegion(String stazione, Map<String, Integer> nord, Map<String, Integer> centro, Map<String, Integer> sud) {
-        if (nord.containsKey(stazione)) return nord.get(stazione);
-        if (centro.containsKey(stazione)) return centro.get(stazione);
-        if (sud.containsKey(stazione)) return sud.get(stazione);
-        return 3;
     }
 }
