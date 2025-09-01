@@ -1,6 +1,7 @@
 package com.trenicall.server.domain.entities;
 
 import com.trenicall.server.business.patterns.state.StatoBiglietto;
+import com.trenicall.server.business.patterns.state.states.*;
 import com.trenicall.server.domain.valueobjects.TipoBiglietto;
 import jakarta.persistence.*;
 
@@ -23,6 +24,9 @@ public class Biglietto {
     private LocalDateTime dataViaggio;
     private Integer distanzaKm;
     private Double prezzo;
+
+    @Column(name = "stato_nome")
+    private String statoNome;
 
     @Transient
     private StatoBiglietto stato;
@@ -64,6 +68,7 @@ public class Biglietto {
 
     public void setStato(StatoBiglietto stato) {
         this.stato = stato;
+        this.statoNome = stato.getNomeStato();
     }
 
     public TipoBiglietto getTipo() {
@@ -129,6 +134,22 @@ public class Biglietto {
 
     public void modificaBiglietto() {
         stato.modificaBiglietto(this);
+    }
+
+    @PostLoad
+    private void loadStato() {
+        if (statoNome != null) {
+            switch (statoNome) {
+                case "PRENOTATO" -> this.stato = new StatoPrenotato();
+                case "PAGATO" -> this.stato = new StatoPagato();
+                case "RIMBORSATO" -> this.stato = new StatoRimborsato();
+                case "SCADUTO" -> this.stato = new StatoScaduto();
+                case "UTILIZZATO" -> this.stato = new StatoUtilizzato();
+                default -> this.stato = new StatoPagato();
+            }
+        } else {
+            this.stato = new StatoPagato();
+        }
     }
 
     @Override

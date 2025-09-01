@@ -6,6 +6,8 @@ import com.trenicall.server.business.services.ClienteService;
 import com.trenicall.server.domain.entities.Biglietto;
 import com.trenicall.server.domain.entities.Cliente;
 import com.trenicall.server.domain.entities.Prenotazione;
+import com.trenicall.server.domain.repositories.PrenotazioneRepository;
+import com.trenicall.server.domain.repositories.BigliettoRepository;
 import com.trenicall.server.domain.valueobjects.TipoBiglietto;
 import com.trenicall.server.grpc.biglietteria.BigliettoResponse;
 import com.trenicall.server.grpc.prenotazione.*;
@@ -21,13 +23,19 @@ public class PrenotazioneServiceImpl extends PrenotazioneServiceGrpc.Prenotazion
     private final PrenotazioneService prenotazioneService;
     private final BiglietteriaService biglietteriaService;
     private final ClienteService clienteService;
+    private final PrenotazioneRepository prenotazioneRepository;
+    private final BigliettoRepository bigliettoRepository;
 
     public PrenotazioneServiceImpl(PrenotazioneService prenotazioneService,
                                    BiglietteriaService biglietteriaService,
-                                   ClienteService clienteService) {
+                                   ClienteService clienteService,
+                                   PrenotazioneRepository prenotazioneRepository,
+                                   BigliettoRepository bigliettoRepository) {
         this.prenotazioneService = prenotazioneService;
         this.biglietteriaService = biglietteriaService;
         this.clienteService = clienteService;
+        this.prenotazioneRepository = prenotazioneRepository;
+        this.bigliettoRepository = bigliettoRepository;
     }
 
     @Override
@@ -70,7 +78,7 @@ public class PrenotazioneServiceImpl extends PrenotazioneServiceGrpc.Prenotazion
         try {
             Biglietto b = prenotazioneService.confermaAcquisto(request.getPrenotazioneId(), biglietteriaService);
 
-            String stato = "UNKNOWN";
+            String stato = "PAGATO";
             if (b.getStato() != null) {
                 stato = b.getStato().getNomeStato();
             }
@@ -93,6 +101,33 @@ public class PrenotazioneServiceImpl extends PrenotazioneServiceGrpc.Prenotazion
         } catch (Exception e) {
             responseObserver.onError(io.grpc.Status.INTERNAL
                     .withDescription("Errore nella conferma acquisto: " + e.getMessage())
+                    .withCause(e)
+                    .asRuntimeException());
+        }
+    }
+
+    @Override
+    public void annullaPrenotazione(AnnullaPrenotazioneRequest request,
+                                    StreamObserver<AnnullaPrenotazioneResponse> responseObserver) {
+        try {
+            Prenotazione prenotazione = prenotazioneRepository.findById(request.getPrenotazioneId())
+                    .orElseThrow(() -> new IllegalStateException("Prenotazione non trovata"));
+
+            prenotazioneRepository.deleteById(request.getPrenotazioneId());
+
+            bigliettoRepository.deleteById(prenotazione.getBiglietto().getId());
+
+            AnnullaPrenotazioneResponse response = AnnullaPrenotazioneResponse.newBuilder()
+                    .setSuccess(true)
+                    .setMessage("Prenotazione annullata con successo")
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+
+        } catch (Exception e) {
+            responseObserver.onError(io.grpc.Status.INTERNAL
+                    .withDescription("Errore nell'annullamento: " + e.getMessage())
                     .withCause(e)
                     .asRuntimeException());
         }
@@ -123,6 +158,7 @@ public class PrenotazioneServiceImpl extends PrenotazioneServiceGrpc.Prenotazion
                             .build();
                     builder.addPrenotazioni(response);
                 } catch (Exception e) {
+
                 }
             });
 

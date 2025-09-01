@@ -120,7 +120,11 @@ public class GrpcClientService {
     }
 
     public void annullaPrenotazione(String prenotazioneId) {
+        AnnullaPrenotazioneRequest request = AnnullaPrenotazioneRequest.newBuilder()
+                .setPrenotazioneId(prenotazioneId)
+                .build();
 
+        prenotazioneStub.annullaPrenotazione(request);
     }
 
     public void shutdown() {

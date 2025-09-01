@@ -9,6 +9,7 @@ import "biglietteria.proto";
 service PrenotazioneService {
   rpc CreaPrenotazione (CreaPrenotazioneRequest) returns (PrenotazioneResponse);
   rpc ConfermaAcquisto (ConfermaAcquistoRequest) returns (BigliettoResponse);
+  rpc AnnullaPrenotazione (AnnullaPrenotazioneRequest) returns (AnnullaPrenotazioneResponse);
   rpc ListaPrenotazioniAttive (ListaPrenotazioniRequest) returns (ListaPrenotazioniResponse);
 }
 
@@ -24,6 +25,15 @@ message CreaPrenotazioneRequest {
 
 message ConfermaAcquistoRequest {
   string prenotazioneId = 1;
+}
+
+message AnnullaPrenotazioneRequest {
+  string prenotazioneId = 1;
+}
+
+message AnnullaPrenotazioneResponse {
+  bool success = 1;
+  string message = 2;
 }
 
 message ListaPrenotazioniRequest {
