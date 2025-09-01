@@ -11,12 +11,13 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
-import java.util.TimerTask;
+import java.util.regex.Pattern;
 
 public class TrenicallSwingClientApplication extends JFrame {
 
@@ -24,8 +25,8 @@ public class TrenicallSwingClientApplication extends JFrame {
     private String currentClientId = "C1";
     private Timer notificationTimer;
 
-    private JTextField ricercaPartenzaField;
-    private JTextField ricercaArrivoField;
+    private JComboBox<String> ricercaPartenzaCombo;
+    private JComboBox<String> ricercaArrivoCombo;
     private JTextField ricercaDataField;
     private JTable risultatiTable;
     private DefaultTableModel risultatiModel;
@@ -52,6 +53,12 @@ public class TrenicallSwingClientApplication extends JFrame {
     private final Color BACKGROUND_COLOR = new Color(248, 249, 250);
     private final Color CARD_COLOR = Color.WHITE;
 
+    private final String[] STAZIONI = {
+            "Roma Termini", "Milano Centrale", "Napoli Centrale", "Torino Porta Nuova",
+            "Firenze Santa Maria Novella", "Bologna Centrale", "Venice Santa Lucia",
+            "Bari Centrale", "Palermo Centrale", "Genova Piazza Principe", "Cosenza"
+    };
+
     public TrenicallSwingClientApplication() {
         initializeGrpcService();
         setupLookAndFeel();
@@ -72,28 +79,20 @@ public class TrenicallSwingClientApplication extends JFrame {
     private void setupLookAndFeel() {
         try {
             UIManager.setLookAndFeel(UIManager.getLookAndFeel());
-
-            // Font che supporta emoji su Windows
             Font emojiFont = new Font("Segoe UI Emoji", Font.PLAIN, 12);
             if (!emojiFont.getFamily().equals("Segoe UI Emoji")) {
-                // Fallback per altri sistemi
                 emojiFont = new Font("Arial Unicode MS", Font.PLAIN, 12);
                 if (!emojiFont.getFamily().equals("Arial Unicode MS")) {
-                    // Ultimo fallback
                     emojiFont = new Font("Dialog", Font.PLAIN, 12);
                 }
             }
-
-            // Imposta il font per tutti i componenti
             UIManager.put("Label.font", emojiFont);
             UIManager.put("Button.font", emojiFont);
             UIManager.put("TabbedPane.font", emojiFont);
-
             UIManager.put("Button.background", PRIMARY_COLOR);
             UIManager.put("Button.foreground", Color.WHITE);
             UIManager.put("Button.focus", new Color(0, 0, 0, 0));
             UIManager.put("TabbedPane.selected", PRIMARY_COLOR);
-
         } catch (Exception e) {
             System.err.println("Could not set look and feel: " + e.getMessage());
         }
@@ -203,14 +202,18 @@ public class TrenicallSwingClientApplication extends JFrame {
         gbc.gridx = 0;
         card.add(new JLabel("Stazione di Partenza:"), gbc);
         gbc.gridx = 1;
-        ricercaPartenzaField = createStyledTextField("Roma Termini", 15);
-        card.add(ricercaPartenzaField, gbc);
+        ricercaPartenzaCombo = new JComboBox<>(STAZIONI);
+        ricercaPartenzaCombo.setSelectedItem("Roma Termini");
+        ricercaPartenzaCombo.addActionListener(e -> validateStationSelection());
+        card.add(ricercaPartenzaCombo, gbc);
 
         gbc.gridx = 2;
         card.add(new JLabel("Stazione di Arrivo:"), gbc);
         gbc.gridx = 3;
-        ricercaArrivoField = createStyledTextField("Milano Centrale", 15);
-        card.add(ricercaArrivoField, gbc);
+        ricercaArrivoCombo = new JComboBox<>(STAZIONI);
+        ricercaArrivoCombo.setSelectedItem("Milano Centrale");
+        ricercaArrivoCombo.addActionListener(e -> validateStationSelection());
+        card.add(ricercaArrivoCombo, gbc);
 
         gbc.gridy = 2;
         gbc.gridx = 0;
@@ -225,17 +228,31 @@ public class TrenicallSwingClientApplication extends JFrame {
         card.add(searchBtn, gbc);
     }
 
+    private void validateStationSelection() {
+        String partenza = (String) ricercaPartenzaCombo.getSelectedItem();
+        String arrivo = (String) ricercaArrivoCombo.getSelectedItem();
+
+        if (partenza != null && partenza.equals(arrivo)) {
+            showErrorDialog("Errore Selezione", "La stazione di partenza e arrivo non possono essere uguali!");
+            if (ricercaArrivoCombo.hasFocus()) {
+                ricercaArrivoCombo.setSelectedIndex((ricercaArrivoCombo.getSelectedIndex() + 1) % STAZIONI.length);
+            } else {
+                ricercaPartenzaCombo.setSelectedIndex((ricercaPartenzaCombo.getSelectedIndex() + 1) % STAZIONI.length);
+            }
+        }
+    }
+
     private void addSearchResults(JPanel card) {
         JLabel titleLabel = new JLabel("📊 Risultati Ricerca");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(15, 15, 10, 15));
         card.add(titleLabel, BorderLayout.NORTH);
 
-        String[] colonne = {"Tipo Treno", "Partenza", "Arrivo", "Orario", "Distanza", "Prezzo", "Azioni"};
+        String[] colonne = {"Tipo Treno", "Partenza", "Arrivo", "Orario", "Distanza", "Prezzo", "Posti", "Azioni"};
         risultatiModel = new DefaultTableModel(colonne, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 6;
+                return column == 7;
             }
         };
         risultatiTable = createStyledTable(risultatiModel);
@@ -388,7 +405,7 @@ public class TrenicallSwingClientApplication extends JFrame {
         JTabbedPane authTabs = new JTabbedPane();
         authTabs.setFont(new Font("Arial", Font.BOLD, 12));
 
-        authTabs.addTab("🔑 Accedi", createLoginPanel());
+        authTabs.addTab("🔐 Accedi", createLoginPanel());
         authTabs.addTab("📝 Registrati", createRegistrationPanel());
         authTabs.addTab("⭐ Programma Fedeltà", createFedeltaPanel());
 
@@ -404,7 +421,7 @@ public class TrenicallSwingClientApplication extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(15, 15, 15, 15);
 
-        JLabel titleLabel = new JLabel("🔑 Accedi al tuo Account");
+        JLabel titleLabel = new JLabel("🔐 Accedi al tuo Account");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
         card.add(titleLabel, gbc);
@@ -471,7 +488,7 @@ public class TrenicallSwingClientApplication extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(20, 20, 20, 20);
 
-        JLabel titleLabel = new JLabel("⭐ Programma FedeltàTreno");
+        JLabel titleLabel = new JLabel("⭐ Programma Fedeltà Treno");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         gbc.gridx = 0; gbc.gridy = 0;
         card.add(titleLabel, gbc);
@@ -609,8 +626,6 @@ public class TrenicallSwingClientApplication extends JFrame {
             fedeltaStatusLabel.setText("Fedelta: Non attiva");
             fedeltaStatusLabel.setBackground(SECONDARY_COLOR);
         }
-
-        aggiornaPrenotazioni();
     }
 
     private void loginCliente(String clienteId) {
@@ -687,52 +702,30 @@ public class TrenicallSwingClientApplication extends JFrame {
     }
 
     private void ricercaBiglietti() {
-        String partenza = ricercaPartenzaField.getText().trim();
-        String arrivo = ricercaArrivoField.getText().trim();
+        String partenza = (String) ricercaPartenzaCombo.getSelectedItem();
+        String arrivo = (String) ricercaArrivoCombo.getSelectedItem();
         String data = ricercaDataField.getText().trim() + "T10:00:00";
 
-        if (partenza.isEmpty() || arrivo.isEmpty()) {
-            showErrorDialog("Errore", "Compila tutti i campi di ricerca");
+        if (partenza == null || arrivo == null || partenza.equals(arrivo)) {
+            showErrorDialog("Errore", "Seleziona stazioni diverse per partenza e arrivo");
             return;
         }
 
         risultatiModel.setRowCount(0);
-
-        try {
-            RicercaBigliettiResponse response = grpcService.ricercaBiglietti(partenza, arrivo, data);
-
-            if (response.getRisultatiCount() > 0) {
-                for (BigliettoResponse biglietto : response.getRisultatiList()) {
-                    Object[] row = {
-                            biglietto.getTipo(),
-                            biglietto.getPartenza(),
-                            biglietto.getArrivo(),
-                            formatDateTime(biglietto.getDataViaggio()),
-                            biglietto.getDistanzaKm() + " km",
-                            String.format("€ %.2f", biglietto.getPrezzo()),
-                            "Azioni"
-                    };
-                    risultatiModel.addRow(row);
-                }
-            } else {
-                generaRisultatiDaTratti(partenza, arrivo, data);
-            }
-
-            statusLabel.setText("Trovati " + risultatiModel.getRowCount() + " risultati");
-
-        } catch (Exception e) {
-            showErrorDialog("Errore Ricerca", e.getMessage());
-            generaRisultatiDaTratti(partenza, arrivo, data);
-        }
+        generaRisultatiDaTratti(partenza, arrivo, data);
+        statusLabel.setText("Trovati " + risultatiModel.getRowCount() + " risultati");
     }
 
     private void generaRisultatiDaTratti(String partenza, String arrivo, String data) {
         String[] tipi = {"REGIONALE", "INTERCITY", "FRECCIA_ROSSA"};
         double[] prezziPerKm = {0.08, 0.12, 0.18};
+        int[] postiBase = {200, 300, 400};
 
         int distanza = calcolaDistanzaApprossimativa(partenza, arrivo);
 
         for (int i = 0; i < tipi.length; i++) {
+            int postiDisponibili = postiBase[i] - getPostiAcquistati(partenza, arrivo, tipi[i]);
+
             Object[] row = {
                     tipi[i],
                     partenza,
@@ -740,40 +733,188 @@ public class TrenicallSwingClientApplication extends JFrame {
                     data.substring(0, 10) + " 10:00",
                     distanza + " km",
                     String.format("€ %.2f", distanza * prezziPerKm[i]),
+                    postiDisponibili + " posti",
                     "Azioni"
             };
             risultatiModel.addRow(row);
         }
     }
 
+    private int getPostiAcquistati(String partenza, String arrivo, String tipo) {
+        try {
+            List<BigliettoResponse> biglietti = grpcService.listaBigliettiCliente(currentClientId);
+            return (int) biglietti.stream()
+                    .filter(b -> b.getPartenza().equals(partenza) &&
+                            b.getArrivo().equals(arrivo) &&
+                            b.getTipo().equals(tipo) &&
+                            "PAGATO".equals(b.getStato()))
+                    .count();
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     private int calcolaDistanzaApprossimativa(String partenza, String arrivo) {
-        Map<String, Integer> distanzeRoma = Map.of(
-                "Milano Centrale", 574,
-                "Napoli Centrale", 225,
-                "Firenze Santa Maria Novella", 273,
-                "Bologna Centrale", 378,
-                "Torino Porta Nuova", 669
-        );
+        Map<String, Map<String, Integer>> distanze = createDistanceMatrix();
 
-        Map<String, Integer> distanzeMilano = Map.of(
-                "Roma Termini", 574,
-                "Napoli Centrale", 770,
-                "Torino Porta Nuova", 158,
-                "Bologna Centrale", 218,
-                "Firenze Santa Maria Novella", 298
-        );
-
-        if ("Roma Termini".equals(partenza) && distanzeRoma.containsKey(arrivo)) {
-            return distanzeRoma.get(arrivo);
-        } else if ("Milano Centrale".equals(partenza) && distanzeMilano.containsKey(arrivo)) {
-            return distanzeMilano.get(arrivo);
-        } else if ("Roma Termini".equals(arrivo) && distanzeRoma.containsKey(partenza)) {
-            return distanzeRoma.get(partenza);
-        } else if ("Milano Centrale".equals(arrivo) && distanzeMilano.containsKey(partenza)) {
-            return distanzeMilano.get(partenza);
+        if (distanze.containsKey(partenza) && distanze.get(partenza).containsKey(arrivo)) {
+            return distanze.get(partenza).get(arrivo);
         }
 
-        return Math.max(150, (partenza.length() + arrivo.length()) * 15 + (int)(Math.random() * 200));
+        if (distanze.containsKey(arrivo) && distanze.get(arrivo).containsKey(partenza)) {
+            return distanze.get(arrivo).get(partenza);
+        }
+
+        return 300;
+    }
+
+    private Map<String, Map<String, Integer>> createDistanceMatrix() {
+        Map<String, Map<String, Integer>> distances = new HashMap<>();
+
+        Map<String, Integer> roma = new HashMap<>();
+        roma.put("Milano Centrale", 574);
+        roma.put("Napoli Centrale", 225);
+        roma.put("Torino Porta Nuova", 669);
+        roma.put("Firenze Santa Maria Novella", 273);
+        roma.put("Bologna Centrale", 378);
+        roma.put("Venice Santa Lucia", 528);
+        roma.put("Bari Centrale", 457);
+        roma.put("Palermo Centrale", 933);
+        roma.put("Genova Piazza Principe", 501);
+        roma.put("Cosenza", 492);
+        distances.put("Roma Termini", roma);
+
+        Map<String, Integer> milano = new HashMap<>();
+        milano.put("Roma Termini", 574);
+        milano.put("Napoli Centrale", 770);
+        milano.put("Torino Porta Nuova", 158);
+        milano.put("Firenze Santa Maria Novella", 298);
+        milano.put("Bologna Centrale", 218);
+        milano.put("Venice Santa Lucia", 267);
+        milano.put("Bari Centrale", 864);
+        milano.put("Palermo Centrale", 1157);
+        milano.put("Genova Piazza Principe", 142);
+        milano.put("Cosenza", 1050);
+        distances.put("Milano Centrale", milano);
+
+        Map<String, Integer> napoli = new HashMap<>();
+        napoli.put("Roma Termini", 225);
+        napoli.put("Milano Centrale", 770);
+        napoli.put("Torino Porta Nuova", 841);
+        napoli.put("Firenze Santa Maria Novella", 476);
+        napoli.put("Bologna Centrale", 594);
+        napoli.put("Venice Santa Lucia", 701);
+        napoli.put("Bari Centrale", 261);
+        napoli.put("Palermo Centrale", 426);
+        napoli.put("Genova Piazza Principe", 669);
+        napoli.put("Cosenza", 277);
+        distances.put("Napoli Centrale", napoli);
+
+        Map<String, Integer> torino = new HashMap<>();
+        torino.put("Roma Termini", 669);
+        torino.put("Milano Centrale", 158);
+        torino.put("Napoli Centrale", 841);
+        torino.put("Firenze Santa Maria Novella", 456);
+        torino.put("Bologna Centrale", 376);
+        torino.put("Venice Santa Lucia", 425);
+        torino.put("Bari Centrale", 1022);
+        torino.put("Palermo Centrale", 1315);
+        torino.put("Genova Piazza Principe", 168);
+        torino.put("Cosenza", 1208);
+        distances.put("Torino Porta Nuova", torino);
+
+        Map<String, Integer> firenze = new HashMap<>();
+        firenze.put("Roma Termini", 273);
+        firenze.put("Milano Centrale", 298);
+        firenze.put("Napoli Centrale", 476);
+        firenze.put("Torino Porta Nuova", 456);
+        firenze.put("Bologna Centrale", 105);
+        firenze.put("Venice Santa Lucia", 255);
+        firenze.put("Bari Centrale", 561);
+        firenze.put("Palermo Centrale", 657);
+        firenze.put("Genova Piazza Principe", 228);
+        firenze.put("Cosenza", 769);
+        distances.put("Firenze Santa Maria Novella", firenze);
+
+        Map<String, Integer> bologna = new HashMap<>();
+        bologna.put("Roma Termini", 378);
+        bologna.put("Milano Centrale", 218);
+        bologna.put("Napoli Centrale", 594);
+        bologna.put("Torino Porta Nuova", 376);
+        bologna.put("Firenze Santa Maria Novella", 105);
+        bologna.put("Venice Santa Lucia", 150);
+        bologna.put("Bari Centrale", 679);
+        bologna.put("Palermo Centrale", 872);
+        bologna.put("Genova Piazza Principe", 328);
+        bologna.put("Cosenza", 887);
+        distances.put("Bologna Centrale", bologna);
+
+        Map<String, Integer> venezia = new HashMap<>();
+        venezia.put("Roma Termini", 528);
+        venezia.put("Milano Centrale", 267);
+        venezia.put("Napoli Centrale", 701);
+        venezia.put("Torino Porta Nuova", 425);
+        venezia.put("Firenze Santa Maria Novella", 255);
+        venezia.put("Bologna Centrale", 150);
+        venezia.put("Bari Centrale", 729);
+        venezia.put("Palermo Centrale", 1022);
+        venezia.put("Genova Piazza Principe", 408);
+        venezia.put("Cosenza", 937);
+        distances.put("Venice Santa Lucia", venezia);
+
+        Map<String, Integer> bari = new HashMap<>();
+        bari.put("Roma Termini", 457);
+        bari.put("Milano Centrale", 864);
+        bari.put("Napoli Centrale", 261);
+        bari.put("Torino Porta Nuova", 1022);
+        bari.put("Firenze Santa Maria Novella", 561);
+        bari.put("Bologna Centrale", 679);
+        bari.put("Venice Santa Lucia", 729);
+        bari.put("Palermo Centrale", 687);
+        bari.put("Genova Piazza Principe", 863);
+        bari.put("Cosenza", 358);
+        distances.put("Bari Centrale", bari);
+
+        Map<String, Integer> palermo = new HashMap<>();
+        palermo.put("Roma Termini", 933);
+        palermo.put("Milano Centrale", 1157);
+        palermo.put("Napoli Centrale", 426);
+        palermo.put("Torino Porta Nuova", 1315);
+        palermo.put("Firenze Santa Maria Novella", 657);
+        palermo.put("Bologna Centrale", 872);
+        palermo.put("Venice Santa Lucia", 1022);
+        palermo.put("Bari Centrale", 687);
+        palermo.put("Genova Piazza Principe", 1156);
+        palermo.put("Cosenza", 477);
+        distances.put("Palermo Centrale", palermo);
+
+        Map<String, Integer> genova = new HashMap<>();
+        genova.put("Roma Termini", 501);
+        genova.put("Milano Centrale", 142);
+        genova.put("Napoli Centrale", 669);
+        genova.put("Torino Porta Nuova", 168);
+        genova.put("Firenze Santa Maria Novella", 228);
+        genova.put("Bologna Centrale", 328);
+        genova.put("Venice Santa Lucia", 408);
+        genova.put("Bari Centrale", 863);
+        genova.put("Palermo Centrale", 1156);
+        genova.put("Cosenza", 1040);
+        distances.put("Genova Piazza Principe", genova);
+
+        Map<String, Integer> cosenza = new HashMap<>();
+        cosenza.put("Roma Termini", 492);
+        cosenza.put("Milano Centrale", 1050);
+        cosenza.put("Napoli Centrale", 277);
+        cosenza.put("Torino Porta Nuova", 1208);
+        cosenza.put("Firenze Santa Maria Novella", 769);
+        cosenza.put("Bologna Centrale", 887);
+        cosenza.put("Venice Santa Lucia", 937);
+        cosenza.put("Bari Centrale", 358);
+        cosenza.put("Palermo Centrale", 477);
+        cosenza.put("Genova Piazza Principe", 1040);
+        distances.put("Cosenza", cosenza);
+
+        return distances;
     }
 
     private void aggiornaBiglietti() {
@@ -782,10 +923,15 @@ public class TrenicallSwingClientApplication extends JFrame {
 
             bigliettiModel.setRowCount(0);
             for (BigliettoResponse biglietto : biglietti) {
+                String stato = biglietto.getStato();
+                if (stato == null || stato.equals("UNKNOWN")) {
+                    stato = "PAGATO";
+                }
+
                 Object[] row = {
                         biglietto.getId(),
                         biglietto.getTipo(),
-                        biglietto.getStato(),
+                        stato,
                         biglietto.getPartenza(),
                         biglietto.getArrivo(),
                         formatDateTime(biglietto.getDataViaggio()),
@@ -802,30 +948,9 @@ public class TrenicallSwingClientApplication extends JFrame {
         }
     }
 
-    private void aggiornaPrenotazioni() {
-        try {
-            prenotazioniModel.setRowCount(0);
-
-            Object[] samplePrenotazione = {
-                    "PR001",
-                    currentClientId,
-                    "FR-T001002",
-                    LocalDateTime.now().minusHours(2).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
-                    LocalDateTime.now().plusMinutes(30).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
-                    "Attiva",
-                    "Azioni"
-            };
-            prenotazioniModel.addRow(samplePrenotazione);
-
-            addNotification("Lista prenotazioni aggiornata per cliente " + currentClientId);
-        } catch (Exception e) {
-            showErrorDialog("Errore", "Errore nell'aggiornamento prenotazioni: " + e.getMessage());
-        }
-    }
-
     private void showCreateReservationDialog() {
         JDialog dialog = new JDialog(this, "Crea Nuova Prenotazione", true);
-        dialog.setSize(500, 400);
+        dialog.setSize(600, 450);
         dialog.setLocationRelativeTo(this);
 
         JPanel panel = new JPanel(new GridBagLayout());
@@ -834,17 +959,26 @@ public class TrenicallSwingClientApplication extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
 
-        String[] labels = {"Partenza:", "Arrivo:", "Data (YYYY-MM-DD):", "Tipo Treno:", "Durata (minuti):"};
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        JLabel titleLabel = new JLabel("Nuova Prenotazione (Scadenza: 10 minuti)");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        panel.add(titleLabel, gbc);
+
+        gbc.gridwidth = 1;
+        String[] labels = {"Partenza:", "Arrivo:", "Data (YYYY-MM-DD):", "Tipo Treno:", "Passeggeri:"};
         JComponent[] fields = {
-                createStyledTextField("Roma Termini", 15),
-                createStyledTextField("Milano Centrale", 15),
+                new JComboBox<>(STAZIONI),
+                new JComboBox<>(STAZIONI),
                 createStyledTextField(LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), 15),
                 new JComboBox<>(new String[]{"REGIONALE", "INTERCITY", "FRECCIA_ROSSA"}),
-                createStyledTextField("60", 15)
+                new JSpinner(new SpinnerNumberModel(1, 1, 10, 1))
         };
 
+        ((JComboBox<?>)fields[0]).setSelectedItem("Roma Termini");
+        ((JComboBox<?>)fields[1]).setSelectedItem("Milano Centrale");
+
         for (int i = 0; i < labels.length; i++) {
-            gbc.gridy = i;
+            gbc.gridy = i + 1;
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.WEST;
             panel.add(new JLabel(labels[i]), gbc);
@@ -854,25 +988,32 @@ public class TrenicallSwingClientApplication extends JFrame {
             panel.add(fields[i], gbc);
         }
 
-        gbc.gridy = labels.length;
+        gbc.gridy = labels.length + 1;
         gbc.gridx = 0;
         gbc.gridwidth = 2;
 
         JButton createBtn = createPrimaryButton("Crea Prenotazione");
         createBtn.addActionListener(e -> {
             try {
-                String partenza = ((JTextField)fields[0]).getText().trim();
-                String arrivo = ((JTextField)fields[1]).getText().trim();
+                String partenza = (String)((JComboBox<?>)fields[0]).getSelectedItem();
+                String arrivo = (String)((JComboBox<?>)fields[1]).getSelectedItem();
                 String data = ((JTextField)fields[2]).getText().trim() + "T10:00:00";
                 String tipo = (String)((JComboBox<?>)fields[3]).getSelectedItem();
-                int durata = Integer.parseInt(((JTextField)fields[4]).getText().trim());
+                int passeggeri = (Integer)((JSpinner)fields[4]).getValue();
+
+                if (partenza.equals(arrivo)) {
+                    showErrorDialog("Errore", "Partenza e arrivo non possono essere uguali");
+                    return;
+                }
 
                 PrenotazioneResponse prenotazione = grpcService.creaPrenotazione(
                         currentClientId, tipo, partenza, arrivo, data,
-                        calcolaDistanzaApprossimativa(partenza, arrivo), durata
+                        calcolaDistanzaApprossimativa(partenza, arrivo), 10
                 );
 
-                showSuccessMessage("Prenotazione creata! ID: " + prenotazione.getId());
+                showSuccessMessage("Prenotazione creata! ID: " + prenotazione.getId() +
+                        "\nPasseggeri: " + passeggeri +
+                        "\nScadenza: 10 minuti");
                 dialog.dispose();
                 aggiornaPrenotazioni();
 
@@ -886,6 +1027,138 @@ public class TrenicallSwingClientApplication extends JFrame {
         dialog.setVisible(true);
     }
 
+    private void aggiornaPrenotazioni() {
+        try {
+            List<PrenotazioneResponse> prenotazioni = grpcService.listaPrenotazioniCliente(currentClientId);
+
+            prenotazioniModel.setRowCount(0);
+            for (PrenotazioneResponse p : prenotazioni) {
+                Object[] row = {
+                        p.getId(),
+                        p.getClienteId(),
+                        p.getBigliettoId(),
+                        formatDateTime(p.getDataCreazione()),
+                        formatDateTime(p.getScadenza()),
+                        p.getAttiva() ? "Attiva" : "Scaduta",
+                        "Azioni"
+                };
+                prenotazioniModel.addRow(row);
+            }
+
+            statusLabel.setText("Caricate " + prenotazioni.size() + " prenotazioni");
+        } catch (Exception e) {
+            statusLabel.setText("Errore caricamento prenotazioni: " + e.getMessage());
+        }
+    }
+
+    private boolean showPaymentDialog() {
+        JDialog dialog = new JDialog(this, "Pagamento Sicuro", true);
+        dialog.setSize(500, 400);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        JLabel titleLabel = new JLabel("💳 Inserisci Dati Carta di Credito");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        panel.add(titleLabel, gbc);
+
+        gbc.gridwidth = 1;
+        String[] labels = {"Nome Titolare:", "Numero Carta:", "Scadenza (MM/YY):", "CVV:"};
+        JTextField[] fields = {
+                createStyledTextField("", 20),
+                createStyledTextField("", 20),
+                createStyledTextField("", 20),
+                createStyledTextField("", 20)
+        };
+
+        for (int i = 0; i < labels.length; i++) {
+            gbc.gridy = i + 1;
+            gbc.gridx = 0;
+            panel.add(new JLabel(labels[i]), gbc);
+            gbc.gridx = 1;
+            panel.add(fields[i], gbc);
+        }
+
+        final boolean[] paymentSuccess = {false};
+
+        gbc.gridy = labels.length + 1;
+        gbc.gridx = 0;
+        JButton confirmBtn = createSuccessButton("💰 Conferma Pagamento");
+        confirmBtn.addActionListener(e -> {
+            String nome = fields[0].getText().trim();
+            String numero = fields[1].getText().trim();
+            String scadenza = fields[2].getText().trim();
+            String cvv = fields[3].getText().trim();
+
+            if (validatePaymentData(nome, numero, scadenza, cvv)) {
+                paymentSuccess[0] = true;
+                showSuccessMessage("Pagamento elaborato con successo!\nTransazione sicura completata.");
+                dialog.dispose();
+            }
+        });
+
+        gbc.gridx = 1;
+        JButton cancelBtn = createSecondaryButton("❌ Annulla");
+        cancelBtn.addActionListener(e -> dialog.dispose());
+
+        panel.add(confirmBtn, gbc);
+        gbc.gridx = 0;
+        panel.add(cancelBtn, gbc);
+
+        dialog.add(panel);
+        dialog.setVisible(true);
+        return paymentSuccess[0];
+    }
+
+    private boolean validatePaymentData(String nome, String numero, String scadenza, String cvv) {
+        if (nome.isEmpty()) {
+            showErrorDialog("Errore", "Inserisci il nome del titolare");
+            return false;
+        }
+
+        if (!Pattern.matches("\\d{16}", numero)) {
+            showErrorDialog("Errore", "Il numero carta deve essere di 16 cifre");
+            return false;
+        }
+
+        if (!Pattern.matches("\\d{2}/\\d{2}", scadenza)) {
+            showErrorDialog("Errore", "La scadenza deve essere nel formato MM/YY");
+            return false;
+        }
+
+        try {
+            String[] parts = scadenza.split("/");
+            int month = Integer.parseInt(parts[0]);
+            int year = 2000 + Integer.parseInt(parts[1]);
+
+            if (month < 1 || month > 12) {
+                showErrorDialog("Errore", "Mese non valido");
+                return false;
+            }
+
+            LocalDate expiry = LocalDate.of(year, month, 1).plusMonths(1).minusDays(1);
+            if (expiry.isBefore(LocalDate.now())) {
+                showErrorDialog("Errore", "La carta è scaduta");
+                return false;
+            }
+        } catch (Exception e) {
+            showErrorDialog("Errore", "Data di scadenza non valida");
+            return false;
+        }
+
+        if (!Pattern.matches("\\d{3}", cvv)) {
+            showErrorDialog("Errore", "Il CVV deve essere di 3 cifre");
+            return false;
+        }
+
+        return true;
+    }
+
     private void startNotificationTimer() {
         notificationTimer = new Timer();
         notificationTimer.scheduleAtFixedRate(new TimerTask() {
@@ -896,7 +1169,7 @@ public class TrenicallSwingClientApplication extends JFrame {
                             "Treno FR-8574 Roma-Milano: Ritardo di 5 minuti",
                             "Offerta speciale: Sconto 20% su tutti i biglietti Intercity",
                             "Treno REG-2341 Milano-Torino: Partenza dal binario 7",
-                            "Promozione FedeltàTreno: Weekend a prezzi speciali",
+                            "Promozione Fedeltà Treno: Weekend a prezzi speciali",
                             "Treno FR-1234 Napoli-Roma: In orario, binario 3"
                     };
 
@@ -1076,24 +1349,113 @@ public class TrenicallSwingClientApplication extends JFrame {
     }
 
     private void acquistaOPrenotaBiglietto(int row) {
-        String[] options = {"Acquista Subito", "Crea Prenotazione", "Annulla"};
-        int choice = JOptionPane.showOptionDialog(this,
-                "Scegli l'azione da eseguire:",
-                "Acquisto/Prenotazione",
-                JOptionPane.YES_NO_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                options,
-                options[0]);
+        JDialog dialog = new JDialog(this, "Scegli Azione", true);
+        dialog.setSize(500, 300);
+        dialog.setLocationRelativeTo(this);
 
-        if (choice == 0) {
-            acquistaBiglietto(row);
-        } else if (choice == 1) {
-            prenotaBiglietto(row);
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        JLabel titleLabel = new JLabel("Acquisto o Prenotazione");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        panel.add(titleLabel, gbc);
+
+        gbc.gridwidth = 1; gbc.gridy = 1;
+        gbc.gridx = 0;
+        panel.add(new JLabel("Numero Passeggeri:"), gbc);
+        gbc.gridx = 1;
+        JSpinner passeggeriSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
+        panel.add(passeggeriSpinner, gbc);
+
+        gbc.gridy = 2; gbc.gridx = 0; gbc.gridwidth = 2;
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+
+        JButton acquistoBtn = createPrimaryButton("Acquista Subito");
+        acquistoBtn.addActionListener(e -> {
+            dialog.dispose();
+            int passeggeri = (Integer) passeggeriSpinner.getValue();
+            acquistaBigliettoConPasseggeri(row, passeggeri);
+        });
+
+        JButton prenotaBtn = createSecondaryButton("Crea Prenotazione");
+        prenotaBtn.addActionListener(e -> {
+            dialog.dispose();
+            int passeggeri = (Integer) passeggeriSpinner.getValue();
+            prenotaBigliettoConPasseggeri(row, passeggeri);
+        });
+
+        JButton annullaBtn = createDangerButton("Annulla");
+        annullaBtn.addActionListener(e -> dialog.dispose());
+
+        buttonPanel.add(acquistoBtn);
+        buttonPanel.add(prenotaBtn);
+        buttonPanel.add(annullaBtn);
+
+        panel.add(buttonPanel, gbc);
+        dialog.add(panel);
+        dialog.setVisible(true);
+    }
+
+    private void acquistaBigliettoConPasseggeri(int row, int passeggeri) {
+        if (!showPaymentDialog()) {
+            return;
+        }
+
+        try {
+            String tipo = (String) risultatiModel.getValueAt(row, 0);
+            String partenza = (String) risultatiModel.getValueAt(row, 1);
+            String arrivo = (String) risultatiModel.getValueAt(row, 2);
+            String data = ricercaDataField.getText().trim() + "T10:00:00";
+            int distanza = calcolaDistanzaApprossimativa(partenza, arrivo);
+
+            for (int i = 0; i < passeggeri; i++) {
+                BigliettoResponse response = grpcService.acquistaBiglietto(
+                        currentClientId, tipo, partenza, arrivo, data, distanza
+                );
+            }
+
+            showSuccessMessage("Biglietti acquistati!\nPasseggeri: " + passeggeri +
+                    "\nTipo: " + tipo + "\nTratta: " + partenza + " → " + arrivo);
+
+            aggiornaBiglietti();
+            addNotification("Acquistati " + passeggeri + " biglietti " + tipo + " " + partenza + "-" + arrivo);
+
+        } catch (Exception e) {
+            showErrorDialog("Errore Acquisto", e.getMessage());
+        }
+    }
+
+    private void prenotaBigliettoConPasseggeri(int row, int passeggeri) {
+        try {
+            String tipo = (String) risultatiModel.getValueAt(row, 0);
+            String partenza = (String) risultatiModel.getValueAt(row, 1);
+            String arrivo = (String) risultatiModel.getValueAt(row, 2);
+            String data = ricercaDataField.getText().trim() + "T10:00:00";
+            int distanza = calcolaDistanzaApprossimativa(partenza, arrivo);
+
+            PrenotazioneResponse response = grpcService.creaPrenotazione(
+                    currentClientId, tipo, partenza, arrivo, data, distanza, 10
+            );
+
+            showSuccessMessage("Prenotazione creata!\nID: " + response.getId() +
+                    "\nPasseggeri: " + passeggeri +
+                    "\nScadenza: 10 minuti");
+
+            addNotification("Prenotazione creata: " + tipo + " per " + passeggeri + " passeggeri");
+
+        } catch (Exception e) {
+            showErrorDialog("Errore Prenotazione", e.getMessage());
         }
     }
 
     private void acquistaBiglietto(int row) {
+        if (!showPaymentDialog()) {
+            return;
+        }
+
         try {
             String tipo = (String) risultatiModel.getValueAt(row, 0);
             String partenza = (String) risultatiModel.getValueAt(row, 1);
@@ -1159,17 +1521,17 @@ public class TrenicallSwingClientApplication extends JFrame {
                 options[0]);
 
         if (choice == 0 && "PAGATO".equals(stato)) {
-            showModificaDataDialog(bigliettoId);
+            showModificaDataDialog(bigliettoId, row);
         } else if (choice == 1 && "PAGATO".equals(stato)) {
-            richiedeRimborso(bigliettoId);
+            richiedeRimborso(bigliettoId, row);
         } else if (choice == 0) {
             showInfoMessage("Dettagli biglietto " + bigliettoId + " visualizzati");
         }
     }
 
-    private void showModificaDataDialog(String bigliettoId) {
+    private void showModificaDataDialog(String bigliettoId, int row) {
         JDialog dialog = new JDialog(this, "Modifica Biglietto " + bigliettoId, true);
-        dialog.setSize(400, 300);
+        dialog.setSize(500, 400);
         dialog.setLocationRelativeTo(this);
 
         JPanel panel = new JPanel(new GridBagLayout());
@@ -1220,13 +1582,18 @@ public class TrenicallSwingClientApplication extends JFrame {
             String nuovoOrario = nuovoOrarioField.getText().trim();
 
             if (!nuovaData.isEmpty() && !nuovoOrario.isEmpty()) {
-                showSuccessMessage("Modifica confermata per il biglietto " + bigliettoId +
-                        "\nNuova data: " + nuovaData + " " + nuovoOrario +
-                        "\nCosto aggiuntivo: 10.00 euro" +
-                        "\nRiceverai conferma via email.");
-                addNotification("Biglietto " + bigliettoId + " modificato per " + nuovaData + " " + nuovoOrario);
-                dialog.dispose();
-                aggiornaBiglietti();
+                try {
+                    String dataCompleta = nuovaData + "T" + nuovoOrario + ":00";
+                    grpcService.modificaBiglietto(bigliettoId, dataCompleta);
+
+                    bigliettiModel.setValueAt(nuovaData + " " + nuovoOrario, row, 5);
+                    showSuccessMessage("Modifica confermata per il biglietto " + bigliettoId +
+                            "\nNuova data: " + nuovaData + " " + nuovoOrario);
+                    addNotification("Biglietto " + bigliettoId + " modificato per " + nuovaData + " " + nuovoOrario);
+                    dialog.dispose();
+                } catch (Exception ex) {
+                    showErrorDialog("Errore", "Errore nella modifica: " + ex.getMessage());
+                }
             } else {
                 showErrorDialog("Errore", "Inserisci data e orario validi");
             }
@@ -1242,7 +1609,7 @@ public class TrenicallSwingClientApplication extends JFrame {
         dialog.setVisible(true);
     }
 
-    private void richiedeRimborso(String bigliettoId) {
+    private void richiedeRimborso(String bigliettoId, int row) {
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Sei sicuro di voler richiedere il rimborso per il biglietto " + bigliettoId + "?\n" +
                         "Il rimborso potrebbe essere soggetto a penali secondo le condizioni di vendita.",
@@ -1250,16 +1617,20 @@ public class TrenicallSwingClientApplication extends JFrame {
                 JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            showSuccessMessage("Richiesta di rimborso inviata per il biglietto " + bigliettoId +
-                    "\nRiceverai una conferma via email entro 24 ore.");
-            addNotification("Rimborso richiesto per biglietto " + bigliettoId);
-            aggiornaBiglietti();
+            try {
+                grpcService.modificaBiglietto(bigliettoId, "RIMBORSA");
+
+                bigliettiModel.setValueAt("RIMBORSATO", row, 2);
+                showSuccessMessage("Richiesta di rimborso inviata per il biglietto " + bigliettoId);
+                addNotification("Rimborso richiesto per biglietto " + bigliettoId);
+            } catch (Exception e) {
+                showErrorDialog("Errore", "Errore nel rimborso: " + e.getMessage());
+            }
         }
     }
 
     private void showPrenotazioneActions(int row) {
         String prenotazioneId = (String) prenotazioniModel.getValueAt(row, 0);
-        String stato = (String) prenotazioniModel.getValueAt(row, 5);
 
         String[] options = {"Conferma Acquisto", "Annulla Prenotazione", "Chiudi"};
         int choice = JOptionPane.showOptionDialog(this,
@@ -1272,36 +1643,45 @@ public class TrenicallSwingClientApplication extends JFrame {
                 options[0]);
 
         if (choice == 0) {
-            confermaAcquisto(prenotazioneId);
+            confermaAcquisto(prenotazioneId, row);
         } else if (choice == 1) {
-            annullaPrenotazione(prenotazioneId);
+            annullaPrenotazione(prenotazioneId, row);
         }
     }
 
-    private void confermaAcquisto(String prenotazioneId) {
+    private void confermaAcquisto(String prenotazioneId, int row) {
+        if (!showPaymentDialog()) {
+            return;
+        }
+
         try {
+            BigliettoResponse biglietto = grpcService.confermaAcquistoPrenotazione(prenotazioneId);
+            prenotazioniModel.removeRow(row);
             showSuccessMessage("Prenotazione " + prenotazioneId + " confermata e convertita in biglietto!");
             addNotification("Prenotazione " + prenotazioneId + " convertita in biglietto");
-            aggiornaPrenotazioni();
             aggiornaBiglietti();
         } catch (Exception e) {
             showErrorDialog("Errore", "Errore nella conferma: " + e.getMessage());
         }
     }
 
-    private void annullaPrenotazione(String prenotazioneId) {
+    private void annullaPrenotazione(String prenotazioneId, int row) {
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Sei sicuro di voler annullare la prenotazione " + prenotazioneId + "?",
                 "Conferma Annullamento",
                 JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            showSuccessMessage("Prenotazione " + prenotazioneId + " annullata!");
-            addNotification("Prenotazione " + prenotazioneId + " annullata");
-            aggiornaPrenotazioni();
+            try {
+                grpcService.annullaPrenotazione(prenotazioneId);
+                prenotazioniModel.removeRow(row);
+                showSuccessMessage("Prenotazione " + prenotazioneId + " annullata!");
+                addNotification("Prenotazione " + prenotazioneId + " annullata");
+            } catch (Exception e) {
+                showErrorDialog("Errore", "Errore nell'annullamento: " + e.getMessage());
+            }
         }
     }
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {

@@ -94,6 +94,35 @@ public class GrpcClientService {
         return prenotazioneStub.creaPrenotazione(request);
     }
 
+    public BigliettoResponse modificaBiglietto(String bigliettoId, String nuovaData) {
+        ModificaBigliettoRequest request = ModificaBigliettoRequest.newBuilder()
+                .setBigliettoId(bigliettoId)
+                .setNuovaData(nuovaData)
+                .build();
+
+        return biglietteriaStub.modificaBiglietto(request);
+    }
+
+    public List<PrenotazioneResponse> listaPrenotazioniCliente(String clienteId) {
+        ListaPrenotazioniRequest request = ListaPrenotazioniRequest.newBuilder()
+                .setClienteId(clienteId)
+                .build();
+
+        return prenotazioneStub.listaPrenotazioniAttive(request).getPrenotazioniList();
+    }
+
+    public BigliettoResponse confermaAcquistoPrenotazione(String prenotazioneId) {
+        ConfermaAcquistoRequest request = ConfermaAcquistoRequest.newBuilder()
+                .setPrenotazioneId(prenotazioneId)
+                .build();
+
+        return prenotazioneStub.confermaAcquisto(request);
+    }
+
+    public void annullaPrenotazione(String prenotazioneId) {
+
+    }
+
     public void shutdown() {
         try {
             channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
