@@ -2,7 +2,10 @@ package com.trenicall.server.grpc.impl;
 
 import com.trenicall.server.business.patterns.builder.RicercaBiglietti;
 import com.trenicall.server.business.services.BiglietteriaService;
+import com.trenicall.server.business.patterns.state.states.StatoPagato;
+import com.trenicall.server.business.patterns.state.states.StatoRimborsato;
 import com.trenicall.server.domain.entities.Biglietto;
+import com.trenicall.server.domain.repositories.BigliettoRepository;
 import com.trenicall.server.domain.valueobjects.TipoBiglietto;
 import com.trenicall.server.grpc.biglietteria.BiglietteriaServiceGrpc;
 import com.trenicall.server.grpc.biglietteria.BigliettoResponse;
@@ -22,9 +25,11 @@ import java.util.List;
 public class BiglietteriaServiceImpl extends BiglietteriaServiceGrpc.BiglietteriaServiceImplBase {
 
     private final BiglietteriaService biglietteriaService;
+    private final BigliettoRepository bigliettoRepository;
 
-    public BiglietteriaServiceImpl(BiglietteriaService biglietteriaService) {
+    public BiglietteriaServiceImpl(BiglietteriaService biglietteriaService, BigliettoRepository bigliettoRepository) {
         this.biglietteriaService = biglietteriaService;
+        this.bigliettoRepository = bigliettoRepository;
     }
 
     @Override
@@ -66,6 +71,8 @@ public class BiglietteriaServiceImpl extends BiglietteriaServiceGrpc.Biglietteri
                     LocalDateTime.parse(request.getDataViaggio()),
                     request.getDistanzaKm()
             );
+            biglietto.setStato(new StatoPagato());
+            bigliettoRepository.save(biglietto);
             responseObserver.onNext(toResponse(biglietto));
             responseObserver.onCompleted();
         } catch (Exception e) {
@@ -80,16 +87,17 @@ public class BiglietteriaServiceImpl extends BiglietteriaServiceGrpc.Biglietteri
     public void modificaBiglietto(ModificaBigliettoRequest request,
                                   StreamObserver<BigliettoResponse> responseObserver) {
         try {
-            Biglietto biglietto = biglietteriaService.getArchivioBiglietti().stream()
-                    .filter(b -> b.getId().equals(request.getBigliettoId()))
-                    .findFirst()
+            Biglietto biglietto = bigliettoRepository.findById(request.getBigliettoId())
                     .orElseThrow(() -> new IllegalArgumentException("Biglietto non trovato"));
 
-            Biglietto modificato = biglietteriaService.modifica(
-                    biglietto,
-                    LocalDateTime.parse(request.getNuovaData())
-            );
-            responseObserver.onNext(toResponse(modificato));
+            if ("RIMBORSA".equals(request.getNuovaData())) {
+                biglietto.setStato(new StatoRimborsato());
+            } else {
+                biglietto.setDataViaggio(LocalDateTime.parse(request.getNuovaData()));
+            }
+
+            bigliettoRepository.save(biglietto);
+            responseObserver.onNext(toResponse(biglietto));
             responseObserver.onCompleted();
         } catch (Exception e) {
             responseObserver.onError(io.grpc.Status.INTERNAL
@@ -103,10 +111,11 @@ public class BiglietteriaServiceImpl extends BiglietteriaServiceGrpc.Biglietteri
     public void listaBigliettiCliente(ListaBigliettiClienteRequest request,
                                       StreamObserver<ListaBigliettiClienteResponse> responseObserver) {
         try {
+            List<Biglietto> biglietti = bigliettoRepository.findByClienteId(request.getClienteId());
             ListaBigliettiClienteResponse.Builder builder = ListaBigliettiClienteResponse.newBuilder();
-            biglietteriaService.getArchivioBiglietti().stream()
-                    .filter(b -> b.getClienteId().equals(request.getClienteId()))
-                    .forEach(b -> builder.addBiglietti(toResponse(b)));
+
+            biglietti.forEach(b -> builder.addBiglietti(toResponse(b)));
+
             responseObserver.onNext(builder.build());
             responseObserver.onCompleted();
         } catch (Exception e) {
@@ -118,7 +127,7 @@ public class BiglietteriaServiceImpl extends BiglietteriaServiceGrpc.Biglietteri
     }
 
     private BigliettoResponse toResponse(Biglietto b) {
-        String stato = "UNKNOWN";
+        String stato = "PAGATO";
         if (b.getStato() != null) {
             stato = b.getStato().getNomeStato();
         }
