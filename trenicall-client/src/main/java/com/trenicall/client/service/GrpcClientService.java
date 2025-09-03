@@ -1,11 +1,15 @@
 package com.trenicall.client.service;
 
+import com.google.protobuf.Empty;
 import com.trenicall.server.grpc.biglietteria.*;
 import com.trenicall.server.grpc.cliente.*;
 import com.trenicall.server.grpc.prenotazione.*;
+import com.trenicall.server.grpc.notifica.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.StreamObserver;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -15,16 +19,17 @@ public class GrpcClientService {
     private final BiglietteriaServiceGrpc.BiglietteriaServiceBlockingStub biglietteriaStub;
     private final ClienteServiceGrpc.ClienteServiceBlockingStub clienteStub;
     private final PrenotazioneServiceGrpc.PrenotazioneServiceBlockingStub prenotazioneStub;
+    private final NotificaServiceGrpc.NotificaServiceBlockingStub notificaBlockingStub;
+    private final NotificaServiceGrpc.NotificaServiceStub notificaAsyncStub;
 
     public GrpcClientService(String host, int port) {
-        this.channel = ManagedChannelBuilder.forAddress(host, port)
-                .usePlaintext()
-                .build();
+        this.channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
         this.biglietteriaStub = BiglietteriaServiceGrpc.newBlockingStub(channel);
         this.clienteStub = ClienteServiceGrpc.newBlockingStub(channel);
         this.prenotazioneStub = PrenotazioneServiceGrpc.newBlockingStub(channel);
+        this.notificaBlockingStub = NotificaServiceGrpc.newBlockingStub(channel);
+        this.notificaAsyncStub = NotificaServiceGrpc.newStub(channel);
     }
-
     public RicercaBigliettiResponse ricercaBiglietti(String partenza, String arrivo, String dataViaggio) {
         RicercaBigliettiRequest request = RicercaBigliettiRequest.newBuilder()
                 .setPartenza(partenza)
@@ -125,6 +130,19 @@ public class GrpcClientService {
                 .build();
 
         prenotazioneStub.annullaPrenotazione(request);
+    }
+
+    public List<TrainInfo> listaTreniAttivi() {
+        ListaTreniResponse res = notificaBlockingStub.listaTreniAttivi(Empty.getDefaultInstance());
+        return new ArrayList<>(res.getTreniList());
+    }
+
+    public void seguiTreno(String clienteId, String trenoCodice, StreamObserver<NotificaResponse> observer) {
+        SeguiTrenoRequest req = SeguiTrenoRequest.newBuilder()
+                .setClienteId(clienteId == null ? "" : clienteId)
+                .setTrenoId(trenoCodice)
+                .build();
+        notificaAsyncStub.seguiTreno(req, observer);
     }
 
     public void shutdown() {

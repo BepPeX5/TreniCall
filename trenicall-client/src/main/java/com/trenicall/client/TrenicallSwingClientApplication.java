@@ -5,6 +5,9 @@ import com.trenicall.server.grpc.biglietteria.BigliettoResponse;
 import com.trenicall.server.grpc.biglietteria.RicercaBigliettiResponse;
 import com.trenicall.server.grpc.cliente.ClienteResponse;
 import com.trenicall.server.grpc.prenotazione.PrenotazioneResponse;
+import com.trenicall.server.grpc.notifica.NotificaResponse;
+import com.trenicall.server.grpc.notifica.TrainInfo;
+import io.grpc.stub.StreamObserver;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -23,6 +26,7 @@ public class TrenicallSwingClientApplication extends JFrame {
 
     private GrpcClientService grpcService;
     private String currentClientId = "C1";
+    private JTabbedPane mainTabbedPane;
     private Timer notificationTimer;
 
     private JComboBox<String> ricercaPartenzaCombo;
@@ -65,7 +69,7 @@ public class TrenicallSwingClientApplication extends JFrame {
         initializeGUI();
         loadClienteInfo();
         aggiornaBiglietti();
-        startNotificationTimer();
+        addFollowTrainTab();
     }
 
     private void initializeGrpcService() {
@@ -153,17 +157,17 @@ public class TrenicallSwingClientApplication extends JFrame {
     }
 
     private JTabbedPane createMainContent() {
-        JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-        tabbedPane.setFont(new Font("Arial", Font.BOLD, 14));
-        tabbedPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        mainTabbedPane = new JTabbedPane(JTabbedPane.TOP); // MODIFICA: assegna alla variabile di istanza
+        mainTabbedPane.setFont(new Font("Arial", Font.BOLD, 14));
+        mainTabbedPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        tabbedPane.addTab("🔍 Ricerca Viaggi", createRicercaPanel());
-        tabbedPane.addTab("🎫 I Miei Biglietti", createBigliettiPanel());
-        tabbedPane.addTab("📋 Prenotazioni", createPrenotazioniPanel());
-        tabbedPane.addTab("🔔 Notifiche Treno", createNotifichePanel());
-        tabbedPane.addTab("👤 Gestione Profilo", createClientePanel());
+        mainTabbedPane.addTab("🔍 Ricerca Viaggi", createRicercaPanel());
+        mainTabbedPane.addTab("🎫 I Miei Biglietti", createBigliettiPanel());
+        mainTabbedPane.addTab("📋 Prenotazioni", createPrenotazioniPanel());
+        mainTabbedPane.addTab("🔔 Notifiche Treno", createNotifichePanel());
+        mainTabbedPane.addTab("👤 Gestione Profilo", createClientePanel());
 
-        return tabbedPane;
+        return mainTabbedPane;
     }
 
     private JPanel createRicercaPanel() {
@@ -636,10 +640,13 @@ public class TrenicallSwingClientApplication extends JFrame {
 
         try {
             ClienteResponse cliente = grpcService.dettagliCliente(clienteId);
-            currentClientId = cliente.getId();
+
+            this.currentClientId = clienteId;
+
             updateClientStatus(cliente);
             showSuccessMessage("Accesso effettuato! Benvenuto " + cliente.getNome());
             aggiornaBiglietti();
+
         } catch (Exception e) {
             showErrorDialog("Errore Login", "Cliente non trovato. Verifica l'ID o registrati.");
         }
@@ -1159,28 +1166,168 @@ public class TrenicallSwingClientApplication extends JFrame {
         return true;
     }
 
-    private void startNotificationTimer() {
-        notificationTimer = new Timer();
-        notificationTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                SwingUtilities.invokeLater(() -> {
-                    String[] notifiche = {
-                            "Treno FR-8574 Roma-Milano: Ritardo di 5 minuti",
-                            "Offerta speciale: Sconto 20% su tutti i biglietti Intercity",
-                            "Treno REG-2341 Milano-Torino: Partenza dal binario 7",
-                            "Promozione Fedeltà Treno: Weekend a prezzi speciali",
-                            "Treno FR-1234 Napoli-Roma: In orario, binario 3"
-                    };
+    private void addFollowTrainTab() {
+        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
+        mainPanel.setBackground(BACKGROUND_COLOR);
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-                    if (Math.random() > 0.7) {
-                        String notifica = notifiche[(int)(Math.random() * notifiche.length)];
-                        addNotification(notifica);
-                    }
-                });
+        JPanel controlCard = createCard();
+        controlCard.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(15, 15, 15, 15);
+
+        JLabel titleLabel = new JLabel("🚂 Seguimento Treni in Tempo Reale");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        titleLabel.setForeground(new Color(44, 62, 80));
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 4;
+        controlCard.add(titleLabel, gbc);
+
+        gbc.gridwidth = 1; gbc.gridy = 1;
+
+        gbc.gridx = 0;
+        controlCard.add(new JLabel("Seleziona Treno:"), gbc);
+        gbc.gridx = 1;
+        JComboBox<String> trainsCombo = new JComboBox<>();
+        trainsCombo.setFont(new Font("Arial", Font.PLAIN, 12));
+        trainsCombo.setPreferredSize(new Dimension(350, 30));
+        controlCard.add(trainsCombo, gbc);
+
+        gbc.gridx = 2;
+        JButton btnReload = createSecondaryButton("🔄 Carica Treni");
+        controlCard.add(btnReload, gbc);
+
+        gbc.gridx = 3;
+        JButton btnFollow = createPrimaryButton("👁️ Segui Treno");
+        controlCard.add(btnFollow, gbc);
+
+        JPanel feedCard = createCard();
+        feedCard.setLayout(new BorderLayout());
+
+        JLabel feedTitleLabel = new JLabel("📢 Feed Notifiche");
+        feedTitleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        feedTitleLabel.setBorder(BorderFactory.createEmptyBorder(15, 15, 10, 15));
+        feedCard.add(feedTitleLabel, BorderLayout.NORTH);
+
+        JTextArea feed = new JTextArea(20, 60);
+        feed.setFont(new Font("Consolas", Font.PLAIN, 12));
+        feed.setBackground(new Color(248, 249, 250));
+        feed.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        feed.setEditable(false);
+        feed.setLineWrap(true);
+        feed.setWrapStyleWord(true);
+        feed.setText("🔌 Sistema di notifiche pronto...\n" +
+                "📡 In attesa di connessione ai treni\n" +
+                "\n" +
+                "ℹ️  Per iniziare:\n" +
+                "1. Clicca 'Carica Treni' per vedere i treni disponibili\n" +
+                "2. Seleziona un treno dalla lista\n" +
+                "3. Clicca 'Segui Treno' per ricevere aggiornamenti\n");
+
+        JScrollPane scrollPane = new JScrollPane(feed);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 15, 15, 15));
+        feedCard.add(scrollPane, BorderLayout.CENTER);
+
+        JPanel statusCard = createCard();
+        statusCard.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 10));
+
+        JLabel statusInfo = new JLabel("Stato: Disconnesso");
+        statusInfo.setFont(new Font("Arial", Font.BOLD, 12));
+        statusInfo.setForeground(WARNING_COLOR);
+
+        JButton clearBtn = createDangerButton("🗑️ Pulisci Feed");
+        clearBtn.addActionListener(e -> {
+            feed.setText("");
+            statusInfo.setText("Feed pulito");
+            statusInfo.setForeground(SUCCESS_COLOR);
+        });
+
+        statusCard.add(statusInfo);
+        statusCard.add(clearBtn);
+
+        btnReload.addActionListener(e -> {
+            try {
+                feed.append("\n🔄 Caricamento treni disponibili...\n");
+                List<TrainInfo> treni = grpcService.listaTreniAttivi();
+
+                DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+                for (TrainInfo t : treni) {
+                    String entry = String.format("%-12s | %-35s | %s",
+                            t.getCodice(), t.getTratta(), t.getNome());
+                    model.addElement(entry);
+                }
+
+                trainsCombo.setModel(model);
+                if (model.getSize() > 0) {
+                    trainsCombo.setSelectedIndex(0);
+                    feed.append("✅ Caricati " + model.getSize() + " treni disponibili\n");
+                    statusInfo.setText("Treni caricati: " + model.getSize());
+                    statusInfo.setForeground(SUCCESS_COLOR);
+                } else {
+                    feed.append("⚠️ Nessun treno disponibile\n");
+                    statusInfo.setText("Nessun treno disponibile");
+                    statusInfo.setForeground(WARNING_COLOR);
+                }
+            } catch (Exception ex) {
+                feed.append("❌ Errore caricamento: " + ex.getMessage() + "\n");
+                showErrorDialog("Errore caricamento treni", ex.getMessage());
+                statusInfo.setText("Errore caricamento");
+                statusInfo.setForeground(DANGER_COLOR);
             }
-        }, 30000, 45000);
+        });
+
+        btnFollow.addActionListener(e -> {
+            String selected = (String) trainsCombo.getSelectedItem();
+            if (selected == null || selected.isEmpty()) {
+                showErrorDialog("Selezione treno", "Seleziona un treno dalla lista.");
+                return;
+            }
+
+            String codice = selected.split("\\s*\\|\\s*")[0].trim();
+            feed.append("\n🎯 Connessione al treno " + codice + "...\n");
+
+            grpcService.seguiTreno(currentClientId, codice, new StreamObserver<NotificaResponse>() {
+                @Override
+                public void onNext(NotificaResponse value) {
+                    SwingUtilities.invokeLater(() -> {
+                        String timestamp = value.getTimestamp().length() > 8 ?
+                                value.getTimestamp().substring(11, 19) : value.getTimestamp();
+                        feed.append(String.format("[%s] %s\n", timestamp, value.getMessaggio()));
+                        feed.setCaretPosition(feed.getDocument().getLength());
+
+                        if (value.getMessaggio().contains("Iscritto")) {
+                            statusInfo.setText("🔗 Connesso a " + codice);
+                            statusInfo.setForeground(SUCCESS_COLOR);
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    SwingUtilities.invokeLater(() -> {
+                        feed.append("❌ ERRORE: " + t.getMessage() + "\n");
+                        statusInfo.setText("Errore connessione");
+                        statusInfo.setForeground(DANGER_COLOR);
+                    });
+                }
+
+                @Override
+                public void onCompleted() {
+                    SwingUtilities.invokeLater(() -> {
+                        feed.append("✅ Connessione terminata\n");
+                        statusInfo.setText("Disconnesso");
+                        statusInfo.setForeground(WARNING_COLOR);
+                    });
+                }
+            });
+        });
+
+        mainPanel.add(controlCard, BorderLayout.NORTH);
+        mainPanel.add(feedCard, BorderLayout.CENTER);
+        mainPanel.add(statusCard, BorderLayout.SOUTH);
+
+        mainTabbedPane.addTab("🚂 Segui Treno", mainPanel);
     }
+
 
     private void addNotification(String message) {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));

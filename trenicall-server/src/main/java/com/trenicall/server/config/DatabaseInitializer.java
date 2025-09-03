@@ -6,10 +6,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 public class DatabaseInitializer implements CommandLineRunner {
@@ -32,9 +30,9 @@ public class DatabaseInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         if (trattaRepository.count() == 0) {
-            System.out.println("Inizializzando database con stazioni e treni italiani...");
+            System.out.println("Inizializzando database con tutte le combinazioni di tratte...");
             initializeDatabase();
-            System.out.println("Database inizializzato con successo!");
+            System.out.println("Database inizializzato con " + trenoRepository.count() + " treni per " + trattaRepository.count() + " tratte!");
         } else {
             System.out.println("Database già inizializzato, skip.");
         }
@@ -49,14 +47,11 @@ public class DatabaseInitializer implements CommandLineRunner {
 
         Map<String, Map<String, Integer>> distanze = createDistanceMatrix();
 
-        for (int i = 0; i < stazioni.size(); i++) {
-            for (int j = 0; j < stazioni.size(); j++) {
-                if (i != j) {
-                    String partenza = stazioni.get(i);
-                    String arrivo = stazioni.get(j);
-
+        for (String partenza : stazioni) {
+            for (String arrivo : stazioni) {
+                if (!partenza.equals(arrivo)) {
                     int distanza = distanze.get(partenza).get(arrivo);
-                    String trattaId = "T" + String.format("%03d", i) + String.format("%03d", j);
+                    String trattaId = "T_" + partenza.replaceAll("\\s+", "") + "_" + arrivo.replaceAll("\\s+", "");
 
                     Tratta tratta = new Tratta(trattaId, partenza, arrivo, distanza);
                     trattaRepository.save(tratta);
@@ -71,16 +66,29 @@ public class DatabaseInitializer implements CommandLineRunner {
     }
 
     private void createTrainsForRoute(Tratta tratta) {
+        String[] prefissi = {"REG", "IC", "FR"};
         String[] tipiTreno = {"Regionale", "InterCity", "Freccia Rossa"};
         int[] postiTotali = {200, 300, 400};
-        String[] prefissi = {"REG", "IC", "FR"};
 
-        for (int i = 0; i < tipiTreno.length; i++) {
-            String trenoId = prefissi[i] + "-" + tratta.getId();
-            String nome = tipiTreno[i] + " " + tratta.getId();
+        for (int i = 0; i < prefissi.length; i++) {
+            String trenoId = generaIdTrenoRealistico(prefissi[i]);
+            String nome = tipiTreno[i] + " " + trenoId;
 
             Treno treno = new Treno(trenoId, nome, tratta, postiTotali[i], String.valueOf((i + 1)));
             trenoRepository.save(treno);
+        }
+    }
+
+    private String generaIdTrenoRealistico(String prefisso) {
+        switch (prefisso) {
+            case "REG":
+                return "REG" + ThreadLocalRandom.current().nextInt(1000, 9999);
+            case "IC":
+                return "IC" + ThreadLocalRandom.current().nextInt(500, 1999);
+            case "FR":
+                return "FR" + ThreadLocalRandom.current().nextInt(8000, 9999);
+            default:
+                return prefisso + ThreadLocalRandom.current().nextInt(1000, 9999);
         }
     }
 
@@ -98,7 +106,7 @@ public class DatabaseInitializer implements CommandLineRunner {
                 LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(30),
                 "Roma Termini", "Milano Centrale", false);
 
-        Promozione promo2 = new Promozione("P2", "Fedeltà Premium", 0.25,
+        Promozione promo2 = new Promozione("P2", "Fedelta Premium", 0.25,
                 LocalDateTime.now().minusDays(5), LocalDateTime.now().plusDays(60),
                 "Milano Centrale", "Napoli Centrale", true);
 
