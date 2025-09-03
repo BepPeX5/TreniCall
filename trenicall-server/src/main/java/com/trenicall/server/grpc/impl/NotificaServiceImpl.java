@@ -2,7 +2,9 @@ package com.trenicall.server.grpc.impl;
 
 import com.google.protobuf.Empty;
 import com.trenicall.server.domain.entities.Treno;
+import com.trenicall.server.domain.entities.Biglietto;
 import com.trenicall.server.domain.repositories.TrenoRepository;
+import com.trenicall.server.domain.repositories.BigliettoRepository;
 import com.trenicall.server.grpc.notifica.*;
 import io.grpc.stub.StreamObserver;
 import org.springframework.stereotype.Service;
@@ -12,22 +14,29 @@ import javax.annotation.PreDestroy;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 @Service
 public class NotificaServiceImpl extends NotificaServiceGrpc.NotificaServiceImplBase {
 
     private final TrenoRepository trenoRepository;
+    private final BigliettoRepository bigliettoRepository;
+
     private final Map<String, CopyOnWriteArrayList<StreamObserver<NotificaResponse>>> subscribersByTrain = new ConcurrentHashMap<>();
+
+    private final Map<String, StreamObserver<NotificaResponse>> globalSubscribers = new ConcurrentHashMap<>();
+
     private ScheduledExecutorService scheduler;
 
-    public NotificaServiceImpl(TrenoRepository trenoRepository) {
+    public NotificaServiceImpl(TrenoRepository trenoRepository, BigliettoRepository bigliettoRepository) {
         this.trenoRepository = trenoRepository;
+        this.bigliettoRepository = bigliettoRepository;
     }
 
     @PostConstruct
     public void start() {
         scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(this::pushSimulatedUpdates, 5, 70, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(this::pushSimulatedUpdates, 10, 20, TimeUnit.SECONDS);
     }
 
     @PreDestroy
@@ -36,31 +45,38 @@ public class NotificaServiceImpl extends NotificaServiceGrpc.NotificaServiceImpl
         subscribersByTrain.values().forEach(list -> list.forEach(o -> {
             try { o.onCompleted(); } catch (Exception ignored) {}
         }));
+        globalSubscribers.values().forEach(o -> {
+            try { o.onCompleted(); } catch (Exception ignored) {}
+        });
         subscribersByTrain.clear();
+        globalSubscribers.clear();
     }
 
     @Override
     public void seguiTreno(SeguiTrenoRequest request, StreamObserver<NotificaResponse> responseObserver) {
         String codice = request.getTrenoId().trim();
+        String clienteId = request.getClienteId();
 
-        Optional<Treno> trenoOpt = trenoRepository.findById(codice);
-        if (trenoOpt.isEmpty()) {
-            System.err.println("Treno non trovato: " + codice + " (disponibili: " +
-                    trenoRepository.findAll().stream().map(t -> t.getId()).toList() + ")");
-            responseObserver.onError(io.grpc.Status.NOT_FOUND
-                    .withDescription("Treno " + codice + " non esistente").asRuntimeException());
-            return;
+        globalSubscribers.put(clienteId, responseObserver);
+
+        if (!codice.isEmpty()) {
+            Optional<Treno> trenoOpt = trenoRepository.findById(codice);
+            if (trenoOpt.isEmpty()) {
+                responseObserver.onError(io.grpc.Status.NOT_FOUND
+                        .withDescription("Treno " + codice + " non esistente").asRuntimeException());
+                return;
+            }
+
+            subscribersByTrain.computeIfAbsent(codice, k -> new CopyOnWriteArrayList<>()).add(responseObserver);
         }
-
-        subscribersByTrain.computeIfAbsent(codice, k -> new CopyOnWriteArrayList<>()).add(responseObserver);
 
         NotificaResponse ack = NotificaResponse.newBuilder()
                 .setId(UUID.randomUUID().toString())
-                .setClienteId(request.getClienteId())
+                .setClienteId(clienteId)
                 .setCanale("PUSH")
-                .setMessaggio("✅ Iscritto alle notifiche del treno " + codice +
-                        " (" + trenoOpt.get().getTratta().getStazionePartenza() +
-                        " → " + trenoOpt.get().getTratta().getStazioneArrivo() + ")")
+                .setMessaggio(codice.isEmpty() ?
+                        "✅ Registrato per notifiche treni " :
+                        "✅ Registrato per treno " + codice + " e treni acquistati")
                 .setTimestamp(LocalDateTime.now().toString())
                 .setLetta(false)
                 .build();
@@ -103,6 +119,12 @@ public class NotificaServiceImpl extends NotificaServiceGrpc.NotificaServiceImpl
     }
 
     private void pushSimulatedUpdates() {
+        pushNotifichetreniSeguiti();
+
+        pushNotificheTreniAcquistati();
+    }
+
+    private void pushNotifichetreniSeguiti() {
         if (subscribersByTrain.isEmpty()) return;
 
         List<String> codici = new ArrayList<>(subscribersByTrain.keySet());
@@ -112,7 +134,7 @@ public class NotificaServiceImpl extends NotificaServiceGrpc.NotificaServiceImpl
             List<StreamObserver<NotificaResponse>> observers = subscribersByTrain.get(codice);
             if (observers == null || observers.isEmpty()) continue;
 
-            String msg = randomUpdateMessage(codice);
+            String msg = "[TRENI SEGUITI] " + randomUpdateMessage(codice);
             NotificaResponse payload = NotificaResponse.newBuilder()
                     .setId(UUID.randomUUID().toString())
                     .setClienteId("")
@@ -132,6 +154,60 @@ public class NotificaServiceImpl extends NotificaServiceGrpc.NotificaServiceImpl
                 }
             }
         }
+    }
+
+    private void pushNotificheTreniAcquistati() {
+        if (globalSubscribers.isEmpty()) return;
+
+        for (Map.Entry<String, StreamObserver<NotificaResponse>> entry : globalSubscribers.entrySet()) {
+            String clienteId = entry.getKey();
+            StreamObserver<NotificaResponse> observer = entry.getValue();
+
+            List<String> treniCliente = getTreniConBiglietti(clienteId);
+
+            if (!treniCliente.isEmpty() && Math.random() > 0.7) {
+                String trenoSelezionato = treniCliente.get(new Random().nextInt(treniCliente.size()));
+                String msg = "[TRENI ACQUISTATI] " + randomUpdateMessage(trenoSelezionato);
+
+                NotificaResponse payload = NotificaResponse.newBuilder()
+                        .setId(UUID.randomUUID().toString())
+                        .setClienteId(clienteId)
+                        .setCanale("PUSH")
+                        .setMessaggio(msg)
+                        .setTimestamp(LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")))
+                        .setLetta(false)
+                        .build();
+
+                try {
+                    observer.onNext(payload);
+                } catch (Exception e) {
+                    globalSubscribers.remove(clienteId);
+                }
+            }
+        }
+    }
+
+    private List<String> getTreniConBiglietti(String clienteId) {
+        try {
+            return bigliettoRepository.findAll().stream()
+                    .filter(b -> clienteId.equals(b.getClienteId()))
+                    .filter(b -> "PAGATO".equals(getStatoSicuro(b)))
+                    .filter(b -> b.getDataViaggio().isAfter(LocalDateTime.now()))
+                    .filter(b -> b.getTrenoAssociato() != null)
+                    .map(Biglietto::getTrenoAssociato)
+                    .distinct()
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            System.err.println("Errore getTreniConBiglietti: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    private String getStatoSicuro(Biglietto biglietto) {
+        if (biglietto.getStato() != null) {
+            return biglietto.getStato().getNomeStato();
+        }
+        return "SCONOSCIUTO";
     }
 
     private String randomUpdateMessage(String codice) {

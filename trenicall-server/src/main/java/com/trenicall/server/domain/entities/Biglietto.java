@@ -28,6 +28,9 @@ public class Biglietto {
     @Column(name = "stato_nome")
     private String statoNome;
 
+    @Column(name = "treno_associato")
+    private String trenoAssociato;
+
     @Transient
     private StatoBiglietto stato;
 
@@ -118,6 +121,14 @@ public class Biglietto {
 
     public void setPrezzo(Double prezzo) {
         this.prezzo = prezzo;
+    }
+
+    public String getTrenoAssociato() {
+        return trenoAssociato;
+    }
+
+    public void setTrenoAssociato(String trenoAssociato) {
+        this.trenoAssociato = trenoAssociato;
     }
 
     public void confermaPrenotazione() {

@@ -1,6 +1,7 @@
 package com.trenicall.server.business.services;
 
 import com.trenicall.server.business.patterns.builder.RicercaBiglietti;
+import com.trenicall.server.business.patterns.factory.BigliettoFactory;
 import com.trenicall.server.domain.entities.Biglietto;
 import com.trenicall.server.domain.repositories.BigliettoRepository;
 import com.trenicall.server.domain.valueobjects.TipoBiglietto;
@@ -25,12 +26,15 @@ class BiglietteriaServiceTest {
     @Mock
     private BigliettoRepository bigliettoRepository;
 
+    @Mock
+    private BigliettoFactory factory;
+
     private BiglietteriaService service;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        service = new BiglietteriaService(bigliettoRepository);
+        service = new BiglietteriaService(factory, bigliettoRepository);
     }
 
     @Test

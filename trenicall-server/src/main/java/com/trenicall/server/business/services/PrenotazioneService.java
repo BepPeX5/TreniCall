@@ -28,7 +28,7 @@ import java.util.UUID;
 @Transactional
 public class PrenotazioneService {
 
-    private final BigliettoFactory factory = new BigliettoFactoryImpl();
+    private final BigliettoFactory factory;
     private final CommandManager commandManager = new CommandManager();
     private final PrenotazioneRepository prenotazioneRepository;
     private final BigliettoRepository bigliettoRepository;
@@ -37,14 +37,17 @@ public class PrenotazioneService {
 
     private static final int MINUTI_SCADENZA = 10;
 
+
     public PrenotazioneService(PrenotazioneRepository prenotazioneRepository,
                                BigliettoRepository bigliettoRepository,
                                ClienteRepository clienteRepository,
-                               TrenoRepository trenoRepository) {
+                               TrenoRepository trenoRepository,
+                               BigliettoFactory factory) {
         this.prenotazioneRepository = prenotazioneRepository;
         this.bigliettoRepository = bigliettoRepository;
         this.clienteRepository = clienteRepository;
         this.trenoRepository = trenoRepository;
+        this.factory = factory;
     }
 
     public Prenotazione creaPrenotazione(String clienteId, TipoBiglietto tipo, String partenza, String arrivo,

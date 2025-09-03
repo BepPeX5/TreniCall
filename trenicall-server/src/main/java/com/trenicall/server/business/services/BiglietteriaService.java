@@ -22,12 +22,15 @@ import java.util.List;
 @Transactional
 public class BiglietteriaService {
 
-    private final BigliettoFactory factory = new BigliettoFactoryImpl();
+    private final BigliettoFactory factory;
     private final CommandManager commandManager = new CommandManager();
     private final PricingContext pricingContext = new PricingContext();
     private final BigliettoRepository bigliettoRepository;
 
-    public BiglietteriaService(BigliettoRepository bigliettoRepository) {
+
+    public BiglietteriaService(BigliettoFactory factory,
+                               BigliettoRepository bigliettoRepository) {
+        this.factory = factory;
         this.bigliettoRepository = bigliettoRepository;
     }
 
