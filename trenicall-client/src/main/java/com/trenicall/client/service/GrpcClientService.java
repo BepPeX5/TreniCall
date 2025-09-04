@@ -155,6 +155,15 @@ public class GrpcClientService {
         return new ArrayList<>(response.getPromozioniList());
     }
 
+    public boolean logoutNotifiche(String clienteId) {
+        LogoutRequest request = LogoutRequest.newBuilder()
+                .setClienteId(clienteId)
+                .build();
+        LogoutResponse response = notificaBlockingStub.logoutNotifiche(request);
+        return response.getSuccess();
+    }
+
+
     public void shutdown() {
         try {
             channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);

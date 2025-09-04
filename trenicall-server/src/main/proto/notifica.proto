@@ -10,6 +10,7 @@ service NotificaService {
   rpc SeguiTreno (SeguiTrenoRequest) returns (stream NotificaResponse);
   rpc InviaNotifica (InviaNotificaRequest) returns (NotificaResponse);
   rpc ListaTreniAttivi (google.protobuf.Empty) returns (ListaTreniResponse);
+  rpc logoutNotifiche(LogoutRequest) returns (LogoutResponse);
 }
 
 message SeguiTrenoRequest {
@@ -30,6 +31,14 @@ message NotificaResponse {
   string messaggio = 4;
   string timestamp = 5;
   bool letta = 6;
+}
+
+message LogoutRequest {
+  string clienteId = 1;
+}
+
+message LogoutResponse {
+  bool success = 1;
 }
 
 message TrainInfo {

@@ -236,6 +236,30 @@ public class NotificaServiceImpl extends NotificaServiceGrpc.NotificaServiceImpl
         }
         return template;
     }
+
+    @Override
+    public void logoutNotifiche(LogoutRequest request, StreamObserver<LogoutResponse> responseObserver) {
+        String clienteId = request.getClienteId();
+
+        globalSubscribers.remove(clienteId);
+
+        subscribersByTrain.values().forEach(list ->
+                list.removeIf(observer -> {
+                    try {
+                        observer.onCompleted();
+                    } catch (Exception ignored) {}
+                    return true;
+                })
+        );
+
+        LogoutResponse response = LogoutResponse.newBuilder()
+                .setSuccess(true)
+                .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
 }
 
 

@@ -632,17 +632,32 @@ public class TrenicallSwingClientApplication extends JFrame {
         }
     }
 
-    private void loginCliente(String clienteId) {
-        if (clienteId.isEmpty()) {
+    private void loginCliente(String nuovoClienteId) {
+        if (nuovoClienteId == null || nuovoClienteId.isEmpty()) {
             showErrorDialog("Errore", "Inserisci l'ID cliente");
             return;
         }
 
         try {
-            ClienteResponse cliente = grpcService.dettagliCliente(clienteId);
+            ClienteResponse cliente = grpcService.dettagliCliente(nuovoClienteId);
 
-            this.currentClientId = clienteId;
+            if (this.currentClientId != null && !this.currentClientId.equals(nuovoClienteId)) {
+                try {
+                    boolean ok = grpcService.logoutNotifiche(this.currentClientId);
+                    if (ok) {
+                        addNotification("🔕 Disiscritto dalle notifiche di " + this.currentClientId);
+                    }
+                } catch (Exception ignore) {
+                }
+                if (notificheArea != null) {
+                    notificheArea.setText(
+                            "▣ CENTRO NOTIFICHE TRENICALL\n" +
+                                    "Le nuove notifiche appariranno qui…\n\n"
+                    );
+                }
+            }
 
+            this.currentClientId = nuovoClienteId;
             updateClientStatus(cliente);
             showSuccessMessage("Accesso effettuato! Benvenuto " + cliente.getNome());
             aggiornaBiglietti();
@@ -651,6 +666,7 @@ public class TrenicallSwingClientApplication extends JFrame {
             showErrorDialog("Errore Login", "Cliente non trovato. Verifica l'ID o registrati.");
         }
     }
+
 
     private void registraCliente() {
         String id = clienteIdField.getText().trim();
