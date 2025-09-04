@@ -102,7 +102,7 @@ public class DatabaseInitializer implements CommandLineRunner {
     }
 
     private void createSamplePromotions() {
-        Promozione promo1 = new Promozione("P1", "Estate 2024", 0.15,
+        Promozione promo1 = new Promozione("P1", "Autunno 2025", 0.15,
                 LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(30),
                 "Roma Termini", "Milano Centrale", false);
 
@@ -110,8 +110,13 @@ public class DatabaseInitializer implements CommandLineRunner {
                 LocalDateTime.now().minusDays(5), LocalDateTime.now().plusDays(60),
                 "Milano Centrale", "Napoli Centrale", true);
 
+        Promozione promo3 = new Promozione("P2", "Ag4in, sconto per chi possiede un biglietto per una partita del Napoli al Maradona", 0.25,
+                LocalDateTime.now().minusDays(5), LocalDateTime.now().plusDays(60),
+                "Cosenza", "Napoli Centrale", true);
+
         promozioneRepository.save(promo1);
         promozioneRepository.save(promo2);
+        promozioneRepository.save(promo3);
     }
 
     private Map<String, Map<String, Integer>> createDistanceMatrix() {

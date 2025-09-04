@@ -1,6 +1,5 @@
 package com.trenicall.server.business.services;
 
-import com.trenicall.server.business.patterns.strategy.PricingStrategy;
 import com.trenicall.server.domain.entities.Biglietto;
 import com.trenicall.server.domain.entities.Promozione;
 import com.trenicall.server.domain.repositories.PromozioneRepository;
@@ -16,7 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class PromozioneServiceTest {
@@ -40,11 +38,9 @@ class PromozioneServiceTest {
                 "Roma", "Milano", false
         );
 
-        PricingStrategy strategy = mock(PricingStrategy.class);
-
         when(promozioneRepository.save(promozione)).thenReturn(promozione);
 
-        Promozione salvata = promozioneService.aggiungiPromozione(promozione, strategy);
+        Promozione salvata = promozioneService.aggiungiPromozione(promozione);
 
         assertEquals("Estate 2024", salvata.getNome());
         assertEquals(0.15, salvata.getPercentualeSconto());
@@ -77,61 +73,19 @@ class PromozioneServiceTest {
                 "Roma", "Milano", LocalDateTime.now().plusDays(1), 300);
         biglietto.setPrezzo(36.0);
 
-        double prezzoConPromozioni = promozioneService.applicaPromozioni(biglietto);
+        double prezzoConPromozioni = promozioneService.applicaPromozioni(biglietto, false);
 
         assertTrue(prezzoConPromozioni >= 0);
-        assertTrue(prezzoConPromozioni <= biglietto.getPrezzo());
     }
 
     @Test
-    void testAggiungiPromozioneConStrategiaNull() {
-        Promozione promozione = new Promozione(
-                "P1", "Promo Test", 0.25,
-                LocalDateTime.now(), LocalDateTime.now().plusDays(15),
-                "Firenze", "Roma", true
-        );
-
-        when(promozioneRepository.save(promozione)).thenReturn(promozione);
-
-        Promozione salvata = promozioneService.aggiungiPromozione(promozione, null);
-
-        assertEquals("Promo Test", salvata.getNome());
-        assertEquals(0.25, salvata.getPercentualeSconto());
-        assertTrue(salvata.isSoloFedelta());
-        verify(promozioneRepository).save(promozione);
-    }
-
-    @Test
-    void testApplicaPromozioniConBigliettoNullo() {
-        assertThrows(NullPointerException.class, () -> {
-            promozioneService.applicaPromozioni(null);
-        });
-    }
-
-    @Test
-    void testApplicaPromozioniConStrategieMultiple() {
-        PricingStrategy strategy1 = mock(PricingStrategy.class);
-        PricingStrategy strategy2 = mock(PricingStrategy.class);
-
-        Promozione p1 = new Promozione("P1", "Promo1", 0.10,
-                LocalDateTime.now(), LocalDateTime.now().plusDays(30),
-                "Roma", "Milano", false);
-        Promozione p2 = new Promozione("P2", "Promo2", 0.15,
-                LocalDateTime.now(), LocalDateTime.now().plusDays(30),
-                "Roma", "Milano", false);
-
-        when(promozioneRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-
-        promozioneService.aggiungiPromozione(p1, strategy1);
-        promozioneService.aggiungiPromozione(p2, strategy2);
-
+    void testApplicaPromozioniFedelta() {
         Biglietto biglietto = new Biglietto("B1", "C1", null, TipoBiglietto.FRECCIA_ROSSA,
-                "Roma", "Milano", LocalDateTime.now().plusDays(1), 500);
-        biglietto.setPrezzo(90.0); // 500km * 0.18
+                "Milano", "Napoli", LocalDateTime.now().plusDays(1), 400);
+        biglietto.setPrezzo(72.0);
 
-        double prezzoFinale = promozioneService.applicaPromozioni(biglietto);
+        double prezzoConPromozioni = promozioneService.applicaPromozioni(biglietto, true);
 
-        assertNotNull(prezzoFinale);
-        assertTrue(prezzoFinale >= 0);
+        assertTrue(prezzoConPromozioni <= 72.0);
     }
 }

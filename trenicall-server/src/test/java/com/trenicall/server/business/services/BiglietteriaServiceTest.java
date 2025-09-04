@@ -4,6 +4,7 @@ import com.trenicall.server.business.patterns.builder.RicercaBiglietti;
 import com.trenicall.server.business.patterns.factory.BigliettoFactory;
 import com.trenicall.server.domain.entities.Biglietto;
 import com.trenicall.server.domain.repositories.BigliettoRepository;
+import com.trenicall.server.domain.repositories.ClienteRepository;
 import com.trenicall.server.domain.valueobjects.TipoBiglietto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,12 +31,18 @@ class BiglietteriaServiceTest {
     @Mock
     private BigliettoFactory factory;
 
+    @Mock
+    private PromozioneService promozioneService;
+
+    @Mock
+    private ClienteRepository clienteRepository;
+
     private BiglietteriaService service;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        service = new BiglietteriaService(factory, bigliettoRepository);
+        service = new BiglietteriaService(factory, bigliettoRepository, clienteRepository, promozioneService);
     }
 
     @Test
@@ -66,6 +74,12 @@ class BiglietteriaServiceTest {
         when(bigliettoRepository.save(any(Biglietto.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
+        when(promozioneService.applicaPromozioni(any(Biglietto.class), anyBoolean()))
+                .thenAnswer(invocation -> {
+                    Biglietto b = invocation.getArgument(0);
+                    return b.getPrezzo() * 0.9; // Simula 10% sconto
+                });
+
         Biglietto b = service.acquista("C1", TipoBiglietto.REGIONALE,
                 "Roma", "Napoli", data, 200);
 
@@ -83,12 +97,13 @@ class BiglietteriaServiceTest {
         when(bigliettoRepository.save(any(Biglietto.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
+        when(promozioneService.applicaPromozioni(any(Biglietto.class), anyBoolean()))
+                .thenReturn(100.0);
+
         LocalDateTime nuovaData = LocalDateTime.now().plusDays(2);
         Biglietto modificato = service.modifica(b, nuovaData);
 
         assertEquals(nuovaData, modificato.getDataViaggio());
-        assertTrue(modificato.getPrezzo() > 0);
+        assertEquals(100.0, modificato.getPrezzo());
     }
 }
-
-

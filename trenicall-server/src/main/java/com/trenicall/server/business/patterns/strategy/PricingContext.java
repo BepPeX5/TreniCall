@@ -9,6 +9,11 @@ public class PricingContext {
     private final List<PricingStrategy> strategie = new ArrayList<>();
     private final List<String> motivazioni = new ArrayList<>();
 
+    public void clearStrategies() {
+        strategie.clear();
+        motivazioni.clear();
+    }
+
     public void aggiungiStrategia(PricingStrategy strategy) {
         strategie.add(strategy);
     }
@@ -20,7 +25,8 @@ public class PricingContext {
         for (PricingStrategy s : strategie) {
             if (s.isApplicable(biglietto)) {
                 double nuovoPrezzo = s.calcolaPrezzo(biglietto, prezzo);
-                motivazioni.add(s.getDescrizione() + " (-" + (int) ((1 - nuovoPrezzo / prezzo) * 100) + "%)");
+                motivazioni.add(s.getDescrizione() + " (-" +
+                        (int)((1 - nuovoPrezzo / prezzo) * 100) + "%)");
                 prezzo = nuovoPrezzo;
             }
         }

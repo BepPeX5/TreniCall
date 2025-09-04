@@ -5,13 +5,11 @@ import com.trenicall.server.business.patterns.command.CommandManager;
 import com.trenicall.server.business.patterns.command.commands.AcquistoBigliettoCommand;
 import com.trenicall.server.business.patterns.command.commands.ModificaBigliettoCommand;
 import com.trenicall.server.business.patterns.factory.BigliettoFactory;
-import com.trenicall.server.business.patterns.factory.BigliettoFactoryImpl;
-import com.trenicall.server.business.patterns.state.states.StatoPrenotato;
-import com.trenicall.server.business.patterns.strategy.PricingContext;
 import com.trenicall.server.domain.entities.Biglietto;
+import com.trenicall.server.domain.entities.Cliente;
 import com.trenicall.server.domain.repositories.BigliettoRepository;
+import com.trenicall.server.domain.repositories.ClienteRepository;
 import com.trenicall.server.domain.valueobjects.TipoBiglietto;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,33 +22,54 @@ public class BiglietteriaService {
 
     private final BigliettoFactory factory;
     private final CommandManager commandManager = new CommandManager();
-    private final PricingContext pricingContext = new PricingContext();
     private final BigliettoRepository bigliettoRepository;
-
+    private final ClienteRepository clienteRepository;
+    private final PromozioneService promozioneService;
 
     public BiglietteriaService(BigliettoFactory factory,
-                               BigliettoRepository bigliettoRepository) {
+                               BigliettoRepository bigliettoRepository,
+                               ClienteRepository clienteRepository,
+                               PromozioneService promozioneService) {
         this.factory = factory;
         this.bigliettoRepository = bigliettoRepository;
+        this.clienteRepository = clienteRepository;
+        this.promozioneService = promozioneService;
     }
 
     public List<Biglietto> ricerca(RicercaBiglietti ricerca) {
         return bigliettoRepository.findByPartenzaAndArrivoAndDataViaggio(
-                ricerca.getPartenza(), ricerca.getArrivo(), ricerca.getDataViaggio()
+                ricerca.getPartenza(),
+                ricerca.getArrivo(),
+                ricerca.getDataViaggio()
         );
     }
 
-    public Biglietto acquista(String clienteId, TipoBiglietto tipo, String partenza, String arrivo,
-                              LocalDateTime dataViaggio, Integer distanzaKm) {
-        Biglietto biglietto = factory.creaBiglietto(tipo, partenza, arrivo, dataViaggio, distanzaKm, clienteId);
+    public Biglietto acquista(String clienteId, TipoBiglietto tipo, String partenza,
+                              String arrivo, LocalDateTime dataViaggio, Integer distanzaKm) {
+
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new IllegalArgumentException("Cliente non trovato: " + clienteId));
+
+        Biglietto biglietto = factory.creaBiglietto(
+                tipo, partenza, arrivo, dataViaggio, distanzaKm, clienteId
+        );
+
         commandManager.executeCommand(new AcquistoBigliettoCommand(biglietto));
-        biglietto.setPrezzo(pricingContext.calcolaPrezzoFinale(biglietto));
+
+        double prezzoFinale = promozioneService.applicaPromozioni(biglietto, cliente.isFedelta());
+        biglietto.setPrezzo(prezzoFinale);
+
         return bigliettoRepository.save(biglietto);
     }
 
     public Biglietto modifica(Biglietto biglietto, LocalDateTime nuovaData) {
         commandManager.executeCommand(new ModificaBigliettoCommand(biglietto, nuovaData));
-        biglietto.setPrezzo(pricingContext.calcolaPrezzoFinale(biglietto));
+
+        Cliente cliente = clienteRepository.findById(biglietto.getClienteId())
+                .orElseThrow(() -> new IllegalArgumentException("Cliente non trovato: " + biglietto.getClienteId()));
+        double prezzoFinale = promozioneService.applicaPromozioni(biglietto, cliente.isFedelta());
+        biglietto.setPrezzo(prezzoFinale);
+
         return bigliettoRepository.save(biglietto);
     }
 
@@ -58,4 +77,3 @@ public class BiglietteriaService {
         return bigliettoRepository.findAll();
     }
 }
-

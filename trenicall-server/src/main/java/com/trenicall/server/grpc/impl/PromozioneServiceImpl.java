@@ -1,5 +1,6 @@
 package com.trenicall.server.grpc.impl;
 
+import com.google.protobuf.Empty;
 import com.trenicall.server.business.services.PromozioneService;
 import com.trenicall.server.domain.entities.Promozione;
 import com.trenicall.server.grpc.promozione.*;
@@ -32,7 +33,7 @@ public class PromozioneServiceImpl extends PromozioneServiceGrpc.PromozioneServi
                 request.getTrattaArrivo(),
                 request.getSoloFedelta()
         );
-        promozioneService.aggiungiPromozione(promozione, null);
+        promozioneService.aggiungiPromozione(promozione);
 
         PromozioneResponse response = PromozioneResponse.newBuilder()
                 .setId(promozione.getId())
@@ -47,6 +48,41 @@ public class PromozioneServiceImpl extends PromozioneServiceGrpc.PromozioneServi
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
+
+    @Override
+    public void listaPromozioniAttive(Empty request, StreamObserver<ListaPromozioniResponse> responseObserver) {
+        try {
+            List<Promozione> promozioni = promozioneService.getPromozioni();
+
+            ListaPromozioniResponse.Builder builder = ListaPromozioniResponse.newBuilder();
+
+            for (Promozione p : promozioni) {
+                if (p.getFine().isAfter(LocalDateTime.now())) {
+                    PromozioneResponse resp = PromozioneResponse.newBuilder()
+                            .setId(p.getId())
+                            .setNome(p.getNome())
+                            .setPercentualeSconto(p.getPercentualeSconto())
+                            .setInizio(p.getInizio().toString())
+                            .setFine(p.getFine().toString())
+                            .setTrattaPartenza(p.getTrattaPartenza())
+                            .setTrattaArrivo(p.getTrattaArrivo())
+                            .setSoloFedelta(p.isSoloFedelta())
+                            .build();
+                    builder.addPromozioni(resp);
+                }
+            }
+
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(io.grpc.Status.INTERNAL
+                    .withDescription("Errore recupero promozioni: " + e.getMessage())
+                    .withCause(e)
+                    .asRuntimeException());
+        }
+    }
+
+
 
     @Override
     public void listaPromozioni(ListaPromozioniRequest request,

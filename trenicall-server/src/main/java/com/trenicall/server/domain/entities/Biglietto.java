@@ -131,18 +131,6 @@ public class Biglietto {
         this.trenoAssociato = trenoAssociato;
     }
 
-    public void confermaPrenotazione() {
-        stato.confermaPrenotazione(this);
-    }
-
-    public void utilizzaBiglietto() {
-        stato.utilizzaBiglietto(this);
-    }
-
-    public void rimborsaBiglietto() {
-        stato.rimborsaBiglietto(this);
-    }
-
     public void modificaBiglietto() {
         stato.modificaBiglietto(this);
     }

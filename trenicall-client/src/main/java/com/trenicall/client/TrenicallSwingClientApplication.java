@@ -7,6 +7,7 @@ import com.trenicall.server.grpc.cliente.ClienteResponse;
 import com.trenicall.server.grpc.prenotazione.PrenotazioneResponse;
 import com.trenicall.server.grpc.notifica.NotificaResponse;
 import com.trenicall.server.grpc.notifica.TrainInfo;
+import com.trenicall.server.grpc.promozione.PromozioneResponse;
 import io.grpc.stub.StreamObserver;
 
 import javax.swing.*;
@@ -70,6 +71,7 @@ public class TrenicallSwingClientApplication extends JFrame {
         loadClienteInfo();
         aggiornaBiglietti();
         addFollowTrainTab();
+        addPromozioniTab();
     }
 
     private void initializeGrpcService() {
@@ -1268,6 +1270,48 @@ public class TrenicallSwingClientApplication extends JFrame {
         mainTabbedPane.addTab("🔔 Gestione Notifiche", mainPanel);
     }
 
+    private void addPromozioniTab() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBackground(BACKGROUND_COLOR);
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JLabel title = new JLabel("💸 Promozioni Attive");
+        title.setFont(new Font("Arial", Font.BOLD, 18));
+
+        DefaultTableModel promoModel = new DefaultTableModel(
+                new Object[]{"Nome", "Sconto", "Inizio", "Fine", "Solo Fedeltà", "Tratta"}, 0
+        );
+        JTable promoTable = new JTable(promoModel);
+
+        JButton btnReload = createPrimaryButton("🔄 Aggiorna");
+        btnReload.addActionListener(e -> {
+            promoModel.setRowCount(0);
+            try {
+                List<PromozioneResponse> promos = grpcService.listaPromozioniAttive();
+                for (PromozioneResponse p : promos) {
+                    promoModel.addRow(new Object[]{
+                            p.getNome(),
+                            (p.getPercentualeSconto() * 100) + "%",
+                            p.getInizio(),
+                            p.getFine(),
+                            p.getSoloFedelta() ? "✔" : "✘",
+                            p.getTrattaPartenza() + " → " + p.getTrattaArrivo()
+                    });
+                }
+            } catch (Exception ex) {
+                showErrorDialog("Errore", "Impossibile caricare promozioni: " + ex.getMessage());
+            }
+        });
+
+        panel.add(title, BorderLayout.NORTH);
+        panel.add(new JScrollPane(promoTable), BorderLayout.CENTER);
+        panel.add(btnReload, BorderLayout.SOUTH);
+
+        mainTabbedPane.addTab("💸 Promozioni", panel);
+    }
+
+
+
 
     private void startUnifiedNotifications() {
         grpcService.seguiTreno(currentClientId, "", new StreamObserver<NotificaResponse>() {
@@ -1528,14 +1572,28 @@ public class TrenicallSwingClientApplication extends JFrame {
             String data = ricercaDataField.getText().trim() + "T10:00:00";
             int distanza = calcolaDistanzaApprossimativa(partenza, arrivo);
 
+            double prezzoTotale = 0;
+            double prezzoBase = 0;
+            double prezzoFinale = 0;
+
             for (int i = 0; i < passeggeri; i++) {
                 BigliettoResponse response = grpcService.acquistaBiglietto(
                         currentClientId, tipo, partenza, arrivo, data, distanza
                 );
+                prezzoFinale = response.getPrezzo();
+                prezzoTotale += prezzoFinale;
+
+
             }
 
-            showSuccessMessage("Biglietti acquistati!\nPasseggeri: " + passeggeri +
-                    "\nTipo: " + tipo + "\nTratta: " + partenza + " → " + arrivo);
+            String msg = "Biglietti acquistati!\n" +
+                    "Passeggeri: " + passeggeri +
+                    "\nTipo: " + tipo +
+                    "\nTratta: " + partenza + " → " + arrivo +
+                    "\nPrezzo finale per passeggero: €" + String.format("%.2f", prezzoFinale) +
+                    "\nTotale: €" + String.format("%.2f", prezzoTotale);
+
+            showSuccessMessage(msg);
 
             aggiornaBiglietti();
             addNotification("Acquistati " + passeggeri + " biglietti " + tipo + " " + partenza + "-" + arrivo);
@@ -1544,6 +1602,7 @@ public class TrenicallSwingClientApplication extends JFrame {
             showErrorDialog("Errore Acquisto", e.getMessage());
         }
     }
+
 
     private void prenotaBigliettoConPasseggeri(int row, int passeggeri) {
         try {
