@@ -81,7 +81,7 @@ public class PrenotazioneService {
         }
     }
 
-    public Biglietto confermaAcquisto(String prenotazioneId, BiglietteriaService biglietteriaService) {
+    public Biglietto confermaAcquisto(String prenotazioneId) {
         Prenotazione prenotazione = prenotazioneRepository.findById(prenotazioneId)
                 .orElseThrow(() -> new IllegalStateException("Prenotazione non trovata o scaduta"));
 
@@ -93,11 +93,19 @@ public class PrenotazioneService {
         prenotato.setStato(new StatoPagato());
         bigliettoRepository.save(prenotato);
 
-        decrementaPostiTreno(prenotato.getPartenza(), prenotato.getArrivo());
+        trenoRepository.findById(prenotato.getTrenoAssociato()).ifPresent(treno -> {
+            if (treno.getPostiDisponibili() > 0) {
+                treno.prenotaPosti(1);
+                trenoRepository.save(treno);
+            } else {
+                throw new IllegalStateException("Nessun posto disponibile su questo treno");
+            }
+        });
 
         prenotazioneRepository.deleteById(prenotazioneId);
         return prenotato;
     }
+
 
     public Collection<Prenotazione> getPrenotazioniAttive() {
         verificaScadenze();

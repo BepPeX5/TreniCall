@@ -118,6 +118,18 @@ public class TrenicallSwingClientApplication extends JFrame {
         add(createFooterPanel(), BorderLayout.SOUTH);
     }
 
+    private Font getEmojiFont(int style, int size) {
+        String[] emojiFonts = {"Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji"};
+        for (String fontName : emojiFonts) {
+            if (Arrays.asList(GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames())
+                    .contains(fontName)) {
+                return new Font(fontName, style, size);
+            }
+        }
+        return new Font("Arial", style, size);
+    }
+
+
     private JPanel createHeaderPanel() {
         JPanel headerPanel = new JPanel(new BorderLayout(20, 0));
         headerPanel.setBackground(new Color(44, 62, 80));
@@ -159,8 +171,8 @@ public class TrenicallSwingClientApplication extends JFrame {
     }
 
     private JTabbedPane createMainContent() {
-        mainTabbedPane = new JTabbedPane(JTabbedPane.TOP); // MODIFICA: assegna alla variabile di istanza
-        mainTabbedPane.setFont(new Font("Arial", Font.BOLD, 14));
+        mainTabbedPane = new JTabbedPane(JTabbedPane.TOP);
+        mainTabbedPane.setFont(getEmojiFont(Font.BOLD, 14));
         mainTabbedPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         mainTabbedPane.addTab("🔍 Ricerca Viaggi", createRicercaPanel());
@@ -171,6 +183,7 @@ public class TrenicallSwingClientApplication extends JFrame {
 
         return mainTabbedPane;
     }
+
 
     private JPanel createRicercaPanel() {
         JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
@@ -279,7 +292,7 @@ public class TrenicallSwingClientApplication extends JFrame {
         headerPanel.setBackground(CARD_COLOR);
 
         JLabel titleLabel = new JLabel("🎫 I Miei Biglietti");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        titleLabel.setFont(getEmojiFont(Font.BOLD, 18));
 
         JButton refreshBtn = createSecondaryButton("🔄 Aggiorna");
         refreshBtn.addActionListener(e -> aggiornaBiglietti());
@@ -311,6 +324,7 @@ public class TrenicallSwingClientApplication extends JFrame {
         return mainPanel;
     }
 
+
     private JPanel createPrenotazioniPanel() {
         JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
         mainPanel.setBackground(BACKGROUND_COLOR);
@@ -320,7 +334,7 @@ public class TrenicallSwingClientApplication extends JFrame {
         actionPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 15));
 
         JLabel titleLabel = new JLabel("📋 Gestione Prenotazioni");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        titleLabel.setFont(getEmojiFont(Font.BOLD, 18));
 
         JButton createReservationBtn = createPrimaryButton("➕ Crea Nuova Prenotazione");
         createReservationBtn.addActionListener(e -> showCreateReservationDialog());
@@ -356,6 +370,7 @@ public class TrenicallSwingClientApplication extends JFrame {
         return mainPanel;
     }
 
+
     private JPanel createNotifichePanel() {
         JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
         mainPanel.setBackground(BACKGROUND_COLOR);
@@ -365,7 +380,7 @@ public class TrenicallSwingClientApplication extends JFrame {
         headerCard.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 15));
 
         JLabel titleLabel = new JLabel("🔔 Centro Notifiche Unificate");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        titleLabel.setFont(getEmojiFont(Font.BOLD, 18));
 
         JButton clearNotificationsBtn = createSecondaryButton("🗑️ Pulisci Notifiche");
         clearNotificationsBtn.addActionListener(e -> {
@@ -380,7 +395,7 @@ public class TrenicallSwingClientApplication extends JFrame {
         notificheCard.setLayout(new BorderLayout());
 
         notificheArea = new JTextArea(20, 50);
-        notificheArea.setFont(new Font("Consolas", Font.PLAIN, 12));
+        notificheArea.setFont(getEmojiFont(Font.PLAIN, 12));
         notificheArea.setBackground(new Color(248, 249, 250));
         notificheArea.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         notificheArea.setEditable(false);
@@ -401,13 +416,14 @@ public class TrenicallSwingClientApplication extends JFrame {
         return mainPanel;
     }
 
+
     private JPanel createClientePanel() {
         JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
         mainPanel.setBackground(BACKGROUND_COLOR);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JTabbedPane authTabs = new JTabbedPane();
-        authTabs.setFont(new Font("Arial", Font.BOLD, 12));
+        authTabs.setFont(getEmojiFont(Font.BOLD, 12));
 
         authTabs.addTab("🔐 Accedi", createLoginPanel());
         authTabs.addTab("📝 Registrati", createRegistrationPanel());
@@ -417,6 +433,7 @@ public class TrenicallSwingClientApplication extends JFrame {
 
         return mainPanel;
     }
+
 
     private JPanel createLoginPanel() {
         JPanel card = createCard();
@@ -1283,8 +1300,10 @@ public class TrenicallSwingClientApplication extends JFrame {
         });
 
         mainPanel.add(controlCard, BorderLayout.NORTH);
-        mainTabbedPane.addTab("🔔 Gestione Notifiche", mainPanel);
+        int lastIndex = mainTabbedPane.getTabCount() - 2;
+        mainTabbedPane.insertTab("🔔 Gestione Notifiche", null, mainPanel, null, lastIndex);
     }
+
 
     private void addPromozioniTab() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
@@ -1300,6 +1319,8 @@ public class TrenicallSwingClientApplication extends JFrame {
         JTable promoTable = new JTable(promoModel);
 
         JButton btnReload = createPrimaryButton("🔄 Aggiorna");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
         btnReload.addActionListener(e -> {
             promoModel.setRowCount(0);
             try {
@@ -1308,8 +1329,8 @@ public class TrenicallSwingClientApplication extends JFrame {
                     promoModel.addRow(new Object[]{
                             p.getNome(),
                             (p.getPercentualeSconto() * 100) + "%",
-                            p.getInizio(),
-                            p.getFine(),
+                            LocalDateTime.parse(p.getInizio()).format(formatter),
+                            LocalDateTime.parse(p.getFine()).format(formatter),
                             p.getSoloFedelta() ? "✔" : "✘",
                             p.getTrattaPartenza() + " → " + p.getTrattaArrivo()
                     });
@@ -1322,8 +1343,8 @@ public class TrenicallSwingClientApplication extends JFrame {
         panel.add(title, BorderLayout.NORTH);
         panel.add(new JScrollPane(promoTable), BorderLayout.CENTER);
         panel.add(btnReload, BorderLayout.SOUTH);
-
-        mainTabbedPane.addTab("💸 Promozioni", panel);
+        int lastIndex = mainTabbedPane.getTabCount() - 1;
+        mainTabbedPane.insertTab("💸 Promozioni", null, panel, null, lastIndex);
     }
 
 

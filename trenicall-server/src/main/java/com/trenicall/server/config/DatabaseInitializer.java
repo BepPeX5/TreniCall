@@ -2,9 +2,13 @@ package com.trenicall.server.config;
 
 import com.trenicall.server.domain.entities.*;
 import com.trenicall.server.domain.repositories.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -12,10 +16,17 @@ import java.util.concurrent.ThreadLocalRandom;
 @Component
 public class DatabaseInitializer implements CommandLineRunner {
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
+
+    @Autowired
+    private DisponibilitaTrenoRepository disponibilitaTrenoRepository;
     private final TrattaRepository trattaRepository;
     private final TrenoRepository trenoRepository;
     private final ClienteRepository clienteRepository;
     private final PromozioneRepository promozioneRepository;
+
 
     public DatabaseInitializer(TrattaRepository trattaRepository,
                                TrenoRepository trenoRepository,
@@ -29,6 +40,13 @@ public class DatabaseInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+
+        disponibilitaTrenoRepository.deleteAll();
+        trenoRepository.deleteAll();
+        trattaRepository.deleteAll();
+        promozioneRepository.deleteAll();
+        clienteRepository.deleteAll();
+
         if (trattaRepository.count() == 0) {
             System.out.println("Inizializzando database con tutte le combinazioni di tratte...");
             initializeDatabase();
@@ -76,8 +94,16 @@ public class DatabaseInitializer implements CommandLineRunner {
 
             Treno treno = new Treno(trenoId, nome, tratta, postiTotali[i], String.valueOf((i + 1)));
             trenoRepository.save(treno);
+
+
+            for (int d = 0; d < 30; d++) {
+                LocalDate data = LocalDate.now().plusDays(d);
+                DisponibilitaTreno disponibilita = new DisponibilitaTreno(treno, data, postiTotali[i]);
+                disponibilitaTrenoRepository.save(disponibilita);
+            }
         }
     }
+
 
     private String generaIdTrenoRealistico(String prefisso) {
         switch (prefisso) {

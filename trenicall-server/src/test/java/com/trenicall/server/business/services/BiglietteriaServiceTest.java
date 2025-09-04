@@ -5,6 +5,8 @@ import com.trenicall.server.business.patterns.factory.BigliettoFactory;
 import com.trenicall.server.domain.entities.Biglietto;
 import com.trenicall.server.domain.repositories.BigliettoRepository;
 import com.trenicall.server.domain.repositories.ClienteRepository;
+import com.trenicall.server.domain.repositories.DisponibilitaTrenoRepository;
+import com.trenicall.server.domain.repositories.TrenoRepository;
 import com.trenicall.server.domain.valueobjects.TipoBiglietto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,12 +39,18 @@ class BiglietteriaServiceTest {
     @Mock
     private ClienteRepository clienteRepository;
 
+    @Mock
+    private TrenoRepository trenoRepository;
+
+    @Mock
+    private DisponibilitaTrenoRepository disponibilitaTrenoRepository;
+
     private BiglietteriaService service;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        service = new BiglietteriaService(factory, bigliettoRepository, clienteRepository, promozioneService);
+        service = new BiglietteriaService(factory, bigliettoRepository, clienteRepository, promozioneService, trenoRepository, disponibilitaTrenoRepository);
     }
 
     @Test

@@ -71,7 +71,7 @@ class PrenotazioneServiceIntegrationTest {
         String prenotazioneId = prenotazione.getId();
         assertTrue(prenotazioneRepository.existsById(prenotazioneId));
 
-        Biglietto bigliettoAcquistato = prenotazioneService.confermaAcquisto(prenotazioneId, biglietteriaService);
+        Biglietto bigliettoAcquistato = prenotazioneService.confermaAcquisto(prenotazioneId);
 
         assertNotNull(bigliettoAcquistato);
         assertEquals("C2", bigliettoAcquistato.getClienteId());
@@ -122,7 +122,7 @@ class PrenotazioneServiceIntegrationTest {
     @Test
     void testConfermaAcquistoPrenotazioneInesistente() {
         assertThrows(IllegalStateException.class, () -> {
-            prenotazioneService.confermaAcquisto("P999", biglietteriaService);
+            prenotazioneService.confermaAcquisto("P999");
         });
     }
 

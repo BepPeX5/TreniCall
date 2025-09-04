@@ -76,7 +76,7 @@ public class PrenotazioneServiceImpl extends PrenotazioneServiceGrpc.Prenotazion
     public void confermaAcquisto(ConfermaAcquistoRequest request,
                                  StreamObserver<BigliettoResponse> responseObserver) {
         try {
-            Biglietto b = prenotazioneService.confermaAcquisto(request.getPrenotazioneId(), biglietteriaService);
+            Biglietto b = prenotazioneService.confermaAcquisto(request.getPrenotazioneId());
 
             String stato = "PAGATO";
             if (b.getStato() != null) {
