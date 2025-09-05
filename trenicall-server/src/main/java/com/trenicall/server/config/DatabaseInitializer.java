@@ -41,12 +41,6 @@ public class DatabaseInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        disponibilitaTrenoRepository.deleteAll();
-        trenoRepository.deleteAll();
-        trattaRepository.deleteAll();
-        promozioneRepository.deleteAll();
-        clienteRepository.deleteAll();
-
         if (trattaRepository.count() == 0) {
             System.out.println("Inizializzando database con tutte le combinazioni di tratte...");
             initializeDatabase();
@@ -136,13 +130,18 @@ public class DatabaseInitializer implements CommandLineRunner {
                 LocalDateTime.now().minusDays(5), LocalDateTime.now().plusDays(60),
                 "Milano Centrale", "Napoli Centrale", true);
 
-        Promozione promo3 = new Promozione("P2", "Ag4in, sconto per chi possiede un biglietto per una partita del Napoli al Maradona", 0.25,
+        Promozione promo3 = new Promozione("P3", "Ag4in, sconto per chi possiede un biglietto per una partita del Napoli al Maradona", 0.25,
                 LocalDateTime.now().minusDays(5), LocalDateTime.now().plusDays(60),
                 "Cosenza", "Napoli Centrale", true);
+
+        Promozione promo4 = new Promozione("P4", "Mercatini di Natale Torino", 0.25,
+                LocalDateTime.now().minusDays(5), LocalDateTime.now().plusDays(60),
+                "Roma Termini", "Torino Porta Nuova", false);
 
         promozioneRepository.save(promo1);
         promozioneRepository.save(promo2);
         promozioneRepository.save(promo3);
+        promozioneRepository.save(promo4);
     }
 
     private Map<String, Map<String, Integer>> createDistanceMatrix() {

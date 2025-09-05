@@ -14,22 +14,5 @@ public class TrenicallServerApplication {
 		SpringApplication.run(TrenicallServerApplication.class, args);
 	}
 
-	@Bean
-	public Server grpcServer(
-			BiglietteriaServiceImpl biglietteriaService,
-			PrenotazioneServiceImpl prenotazioneService,
-			PromozioneServiceImpl promozioneService,
-			ClienteServiceImpl clienteService,
-			NotificaServiceImpl notificaService) throws Exception {
-
-		return ServerBuilder.forPort(50051)
-				.addService(biglietteriaService)
-				.addService(prenotazioneService)
-				.addService(promozioneService)
-				.addService(clienteService)
-				.addService(notificaService)
-				.build()
-				.start();
-	}
 }
 
