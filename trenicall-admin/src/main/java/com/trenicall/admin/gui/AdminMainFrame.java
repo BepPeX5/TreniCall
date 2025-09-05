@@ -2,7 +2,8 @@ package com.trenicall.admin.gui;
 
 import com.trenicall.admin.gui.panels.*;
 import com.trenicall.admin.service.AdminService;
-import com.trenicall.client.service.GrpcClientService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +12,7 @@ import java.awt.event.WindowEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Component
 public class AdminMainFrame extends JFrame {
 
     private final Color PRIMARY_COLOR = new Color(44, 62, 80);
@@ -22,7 +24,9 @@ public class AdminMainFrame extends JFrame {
     private final Color CARD_COLOR = Color.WHITE;
     private final Color SIDEBAR_COLOR = new Color(52, 73, 94);
 
+    @Autowired
     private AdminService adminService;
+
     private JLabel statusLabel;
     private JLabel connectionLabel;
     private JLabel timeLabel;
@@ -35,30 +39,19 @@ public class AdminMainFrame extends JFrame {
     private BookingsMonitoringPanel bookingsPanel;
     private NotificationCenterPanel notificationsPanel;
 
-    public AdminMainFrame() {
-        initializeServices();
-        setupMainFrame();
-        createMenuBar();
-        initializeComponents();
-        setupLayout();
-        startStatusClock();
-        setVisible(true);
-    }
-
-    private void initializeServices() {
-        try {
-            GrpcClientService grpcService = new GrpcClientService("localhost", 9090);
-            this.adminService = new AdminService(grpcService);
-            updateConnectionStatus(true);
-        } catch (Exception e) {
-            updateConnectionStatus(false);
-            showErrorDialog("Errore Connessione",
-                    "Impossibile connettersi al server TreniCal. Verifica che il server sia attivo.");
-        }
+    public void initializeGUI() {
+        SwingUtilities.invokeLater(() -> {
+            setupMainFrame();
+            createMenuBar();
+            initializeComponents();
+            setupLayout();
+            startStatusClock();
+            setVisible(true);
+        });
     }
 
     private void setupMainFrame() {
-        setTitle("🔧 TreniCal Admin Console - Sistema Gestione Ferroviaria");
+        setTitle("🔧 TreniCal Admin Console - Sistema Gestione Ferroviaria (Locale)");
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setSize(1600, 1000);
         setLocationRelativeTo(null);
@@ -85,7 +78,7 @@ public class AdminMainFrame extends JFrame {
         menuBar.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
 
         JMenu fileMenu = createStyledMenu("📁 File");
-        fileMenu.add(createMenuItem("🔄 Riconnetti Server", e -> reconnectToServer()));
+        fileMenu.add(createMenuItem("🔄 Ricarica Dati", e -> refreshData()));
         fileMenu.addSeparator();
         fileMenu.add(createMenuItem("🚪 Esci", e -> handleApplicationExit()));
 
@@ -157,7 +150,7 @@ public class AdminMainFrame extends JFrame {
         logoLabel.setForeground(Color.WHITE);
         logoLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
 
-        JLabel versionLabel = new JLabel("Console v1.0");
+        JLabel versionLabel = new JLabel("Console v1.0 (Locale)");
         versionLabel.setForeground(new Color(189, 195, 199));
         versionLabel.setFont(new Font("Arial", Font.ITALIC, 12));
 
@@ -167,7 +160,7 @@ public class AdminMainFrame extends JFrame {
         JPanel rightSection = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
         rightSection.setOpaque(false);
 
-        connectionLabel = new JLabel("🔗 Connesso");
+        connectionLabel = new JLabel("🔗 Connesso (Locale)");
         connectionLabel.setForeground(SUCCESS_COLOR);
         connectionLabel.setFont(new Font("Arial", Font.BOLD, 12));
 
@@ -238,15 +231,15 @@ public class AdminMainFrame extends JFrame {
         systemInfo.setOpaque(false);
         systemInfo.setBorder(BorderFactory.createEmptyBorder(20, 20, 0, 20));
 
-        JLabel sysLabel = new JLabel("💻 Sistema");
+        JLabel sysLabel = new JLabel("💻 Sistema Locale");
         sysLabel.setForeground(new Color(149, 165, 166));
         sysLabel.setFont(new Font("Arial", Font.BOLD, 11));
-        sysLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sysLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
 
         JLabel memoryLabel = new JLabel("RAM: " + getMemoryUsage());
         memoryLabel.setForeground(new Color(149, 165, 166));
         memoryLabel.setFont(new Font("Courier New", Font.PLAIN, 10));
-        memoryLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        memoryLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
 
         systemInfo.add(sysLabel);
         systemInfo.add(Box.createVerticalStrut(5));
@@ -332,7 +325,7 @@ public class AdminMainFrame extends JFrame {
                 BorderFactory.createEmptyBorder(8, 20, 8, 20)
         ));
 
-        statusLabel = new JLabel("✅ Sistema operativo - Tutti i servizi attivi");
+        statusLabel = new JLabel("✅ Sistema operativo - Accesso diretto database");
         statusLabel.setFont(new Font("Arial", Font.PLAIN, 12));
         statusLabel.setForeground(new Color(44, 62, 80));
 
@@ -370,11 +363,11 @@ public class AdminMainFrame extends JFrame {
 
     private void updateStatusForPanel(int panelIndex) {
         String[] statusMessages = {
-                "📊 Visualizzazione dashboard principale",
-                "🚂 Gestione treni e tratte ferroviarie",
-                "💰 Amministrazione promozioni e offerte",
-                "👥 Monitoraggio clienti e statistiche",
-                "🎫 Controllo biglietti e prenotazioni",
+                "📊 Visualizzazione dashboard principale (dati reali)",
+                "🚂 Gestione treni e tratte ferroviarie (database)",
+                "💰 Amministrazione promozioni e offerte (database)",
+                "👥 Monitoraggio clienti e statistiche (database)",
+                "🎫 Controllo biglietti e prenotazioni (database)",
                 "📢 Centro notifiche e comunicazioni"
         };
         statusLabel.setText(statusMessages[panelIndex]);
@@ -388,18 +381,6 @@ public class AdminMainFrame extends JFrame {
         clockTimer.start();
     }
 
-    private void updateConnectionStatus(boolean connected) {
-        if (connectionLabel != null) {
-            if (connected) {
-                connectionLabel.setText("🔗 Connesso");
-                connectionLabel.setForeground(SUCCESS_COLOR);
-            } else {
-                connectionLabel.setText("⚠️ Disconnesso");
-                connectionLabel.setForeground(DANGER_COLOR);
-            }
-        }
-    }
-
     private String getMemoryUsage() {
         Runtime runtime = Runtime.getRuntime();
         long usedMemory = runtime.totalMemory() - runtime.freeMemory();
@@ -408,19 +389,17 @@ public class AdminMainFrame extends JFrame {
                 runtime.maxMemory() / 1024.0 / 1024.0);
     }
 
-    private void reconnectToServer() {
+    private void refreshData() {
         SwingUtilities.invokeLater(() -> {
-            statusLabel.setText("🔄 Riconnessione al server...");
+            statusLabel.setText("🔄 Ricaricamento dati dal database...");
             try {
-                adminService.reconnect();
-                updateConnectionStatus(true);
-                statusLabel.setText("✅ Riconnessione completata con successo");
-                showSuccessMessage("Connessione ristabilita al server TreniCal!");
+                adminService.refreshDashboardData();
+                statusLabel.setText("✅ Dati aggiornati con successo");
+                showSuccessMessage("Dati ricaricati dal database!");
             } catch (Exception e) {
-                updateConnectionStatus(false);
-                statusLabel.setText("❌ Errore di connessione");
-                showErrorDialog("Errore Connessione",
-                        "Impossibile ristabilire la connessione: " + e.getMessage());
+                statusLabel.setText("⚠ Errore ricaricamento dati");
+                showErrorDialog("Errore Aggiornamento",
+                        "Impossibile aggiornare i dati: " + e.getMessage());
             }
         });
     }
@@ -432,15 +411,28 @@ public class AdminMainFrame extends JFrame {
     private void showNotificationCenter() { switchToPanel(5); }
 
     private void showSystemLogs() {
-        showInfoMessage("Funzionalità Log Sistema", "Modulo di visualizzazione log in sviluppo.");
+        JFrame logFrame = new JFrame("Log Sistema TreniCal");
+        logFrame.setSize(800, 600);
+        logFrame.setLocationRelativeTo(this);
+
+        JTextArea logArea = new JTextArea();
+        logArea.setEditable(false);
+        logArea.setFont(new Font("Courier New", Font.PLAIN, 12));
+
+        java.util.List<String> logs = adminService.getSystemLogs();
+        logArea.setText(String.join("\n", logs));
+
+        JScrollPane scrollPane = new JScrollPane(logArea);
+        logFrame.add(scrollPane);
+        logFrame.setVisible(true);
     }
 
     private void showSettings() {
-        showInfoMessage("Impostazioni", "Pannello impostazioni in sviluppo.");
+        showInfoMessage("Impostazioni", "Pannello impostazioni admin in sviluppo.");
     }
 
     private void showUserManual() {
-        showInfoMessage("Manuale Utente", "Documentazione disponibile online su docs.trenicall.com");
+        showInfoMessage("Manuale Utente", "Documentazione disponibile su docs.trenicall.com");
     }
 
     private void showSystemInfo() {
@@ -449,7 +441,8 @@ public class AdminMainFrame extends JFrame {
                         "💻 Sistema: %s\n" +
                         "☕ Java: %s\n" +
                         "🖥️ Memoria: %s\n" +
-                        "🌐 Server: localhost:9090\n\n" +
+                        "🌐 Modalità: Accesso diretto database\n" +
+                        "📊 Dati: Reali dal database MySQL\n\n" +
                         "📅 Build: Dicembre 2024",
                 System.getProperty("os.name"),
                 System.getProperty("java.version"),

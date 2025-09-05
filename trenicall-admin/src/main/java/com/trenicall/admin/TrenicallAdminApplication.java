@@ -1,29 +1,51 @@
 package com.trenicall.admin;
 
 import com.trenicall.admin.gui.AdminMainFrame;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import javax.swing.*;
 import java.awt.*;
 
+@SpringBootApplication(scanBasePackages = {
+        "com.trenicall.admin",
+        "com.trenicall.server.business.services",
+        "com.trenicall.server.business.patterns",
+        "com.trenicall.server.domain.repositories"
+})
+@EntityScan(basePackages = "com.trenicall.server.domain.entities")
+@EnableJpaRepositories(basePackages = "com.trenicall.server.domain.repositories")
 public class TrenicallAdminApplication {
 
     private static final String APP_NAME = "TreniCal Admin Console";
     private static final String VERSION = "v1.0";
 
     public static void main(String[] args) {
-        setupLookAndFeel();
+        System.setProperty("java.awt.headless", "false");
 
+        System.setProperty("spring.main.sources", "com.trenicall.admin");
+
+        setupLookAndFeel();
         setupFonts();
 
         SwingUtilities.invokeLater(() -> {
             try {
                 showSplashScreen();
-                Thread.sleep(1500);
 
-                AdminMainFrame mainFrame = new AdminMainFrame();
-                mainFrame.setVisible(true);
+                SpringApplication app = new SpringApplication(TrenicallAdminApplication.class);
+                app.setWebApplicationType(org.springframework.boot.WebApplicationType.NONE);
+
+                ConfigurableApplicationContext context = app.run(args);
+
+                AdminMainFrame mainFrame = context.getBean(AdminMainFrame.class);
+
+                mainFrame.initializeGUI();
 
             } catch (Exception e) {
+                e.printStackTrace();
                 showErrorDialog("Errore Avvio",
                         "Impossibile avviare l'applicazione admin:\n" + e.getMessage());
                 System.exit(1);
@@ -44,24 +66,19 @@ public class TrenicallAdminApplication {
         }
     }
 
-
     private static void setupFonts() {
         try {
             Font defaultFont = new Font("Segoe UI", Font.PLAIN, 12);
             Font emojiFont = new Font("Segoe UI Emoji", Font.PLAIN, 12);
 
             if (!emojiFont.getFamily().equals("Segoe UI Emoji")) {
-                emojiFont = new Font("Arial Unicode MS", Font.PLAIN, 12);
-                if (!emojiFont.getFamily().equals("Arial Unicode MS")) {
-                    emojiFont = defaultFont;
-                }
+                UIManager.put("Label.font", defaultFont);
+                UIManager.put("Button.font", defaultFont);
+                UIManager.put("TextField.font", defaultFont);
+                UIManager.put("TextArea.font", defaultFont);
+                UIManager.put("Table.font", defaultFont);
+                UIManager.put("ComboBox.font", defaultFont);
             }
-
-            UIManager.put("Label.font", emojiFont);
-            UIManager.put("Button.font", emojiFont);
-            UIManager.put("TabbedPane.font", emojiFont);
-            UIManager.put("Table.font", defaultFont);
-            UIManager.put("TableHeader.font", new Font("Arial", Font.BOLD, 12));
 
         } catch (Exception e) {
             System.err.println("⚠️ Errore configurazione font: " + e.getMessage());
@@ -69,58 +86,42 @@ public class TrenicallAdminApplication {
     }
 
     private static void showSplashScreen() {
-        JWindow splash = new JWindow();
-        splash.setSize(450, 300);
-        splash.setLocationRelativeTo(null);
+        try {
+            JWindow splash = new JWindow();
+            splash.setSize(400, 250);
+            splash.setLocationRelativeTo(null);
 
-        JPanel panel = new JPanel();
-        panel.setBackground(new Color(44, 62, 80));
-        panel.setLayout(new GridBagLayout());
+            JPanel content = new JPanel(new BorderLayout());
+            content.setBackground(new Color(44, 62, 80));
+            content.setBorder(BorderFactory.createLineBorder(new Color(52, 73, 94), 2));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(20, 20, 20, 20);
+            JLabel appLabel = new JLabel("🚄 " + APP_NAME + " " + VERSION, SwingConstants.CENTER);
+            appLabel.setForeground(Color.WHITE);
+            appLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
-        JLabel logoLabel = new JLabel("🔧 " + APP_NAME);
-        logoLabel.setForeground(Color.WHITE);
-        logoLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        gbc.gridx = 0; gbc.gridy = 0;
-        panel.add(logoLabel, gbc);
+            JLabel statusLabel = new JLabel("Inizializzazione in corso...", SwingConstants.CENTER);
+            statusLabel.setForeground(new Color(189, 195, 199));
+            statusLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
-        JLabel versionLabel = new JLabel(VERSION);
-        versionLabel.setForeground(new Color(149, 165, 166));
-        versionLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        gbc.gridy = 1;
-        panel.add(versionLabel, gbc);
+            JProgressBar progressBar = new JProgressBar();
+            progressBar.setIndeterminate(true);
+            progressBar.setBackground(new Color(52, 73, 94));
+            progressBar.setForeground(new Color(52, 152, 219));
 
-        JLabel descLabel = new JLabel("Sistema Amministrativo Ferroviario");
-        descLabel.setForeground(new Color(189, 195, 199));
-        descLabel.setFont(new Font("Arial", Font.ITALIC, 12));
-        gbc.gridy = 2;
-        panel.add(descLabel, gbc);
+            content.add(appLabel, BorderLayout.CENTER);
+            content.add(statusLabel, BorderLayout.SOUTH);
+            content.add(progressBar, BorderLayout.PAGE_END);
 
-        JProgressBar progressBar = new JProgressBar();
-        progressBar.setIndeterminate(true);
-        progressBar.setForeground(new Color(41, 128, 185));
-        progressBar.setPreferredSize(new Dimension(300, 20));
-        gbc.gridy = 3;
-        gbc.insets = new Insets(40, 20, 20, 20);
-        panel.add(progressBar, gbc);
+            splash.setContentPane(content);
+            splash.setVisible(true);
 
-        JLabel statusLabel = new JLabel("Caricamento moduli...");
-        statusLabel.setForeground(Color.WHITE);
-        statusLabel.setFont(new Font("Arial", Font.PLAIN, 11));
-        gbc.gridy = 4;
-        gbc.insets = new Insets(10, 20, 20, 20);
-        panel.add(statusLabel, gbc);
+            Thread.sleep(1500);
+            splash.dispose();
 
-        splash.add(panel);
-        splash.setVisible(true);
-
-        Timer timer = new Timer(1500, e -> splash.dispose());
-        timer.setRepeats(false);
-        timer.start();
+        } catch (Exception e) {
+            System.err.println("⚠️ Errore splash screen: " + e.getMessage());
+        }
     }
-
 
     private static void showErrorDialog(String title, String message) {
         JOptionPane.showMessageDialog(
