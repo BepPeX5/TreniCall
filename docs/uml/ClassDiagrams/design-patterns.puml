@@ -1,0 +1,186 @@
+@startuml
+!theme plain
+title TreniCal - Design Patterns Class Diagram
+
+package "Factory Pattern" {
+    interface BigliettoFactory {
+        + creaBiglietto(tipo: TipoBiglietto, partenza: String, arrivo: String, dataViaggio: LocalDateTime, distanzaKm: Integer, clienteId: String): Biglietto
+    }
+
+    class BigliettoFactoryImpl {
+        - trenoRepository: TrenoRepository
+        + creaBiglietto(...): Biglietto
+        - trovaTrenoRealePerTratta(tipo: TipoBiglietto, partenza: String, arrivo: String): Treno
+        - getTipoPrefisso(tipo: TipoBiglietto): String
+    }
+}
+
+package "Command Pattern" {
+    interface Command {
+        + execute(): void
+    }
+
+    class CommandManager {
+        - history: Stack<Command>
+        + executeCommand(command: Command): void
+        + undo(): void
+    }
+
+    class AcquistoBigliettoCommand {
+        - biglietto: Biglietto
+        + execute(): void
+    }
+
+    class ModificaBigliettoCommand {
+        - biglietto: Biglietto
+        - nuovaData: LocalDateTime
+        + execute(): void
+    }
+
+    class PrenotazioneCommand {
+        - biglietto: Biglietto
+        + execute(): void
+    }
+}
+
+package "State Pattern" {
+    interface StatoBiglietto {
+        + confermaPrenotazione(biglietto: Biglietto): void
+        + utilizzaBiglietto(biglietto: Biglietto): void
+        + rimborsaBiglietto(biglietto: Biglietto): void
+        + modificaBiglietto(biglietto: Biglietto): void
+        + getNomeStato(): String
+    }
+
+    class StatoPrenotato {
+        + confermaPrenotazione(biglietto: Biglietto): void
+        + utilizzaBiglietto(biglietto: Biglietto): void
+        + rimborsaBiglietto(biglietto: Biglietto): void
+        + modificaBiglietto(biglietto: Biglietto): void
+        + getNomeStato(): String
+    }
+
+    class StatoPagato {
+        + confermaPrenotazione(biglietto: Biglietto): void
+        + utilizzaBiglietto(biglietto: Biglietto): void
+        + rimborsaBiglietto(biglietto: Biglietto): void
+        + modificaBiglietto(biglietto: Biglietto): void
+        + getNomeStato(): String
+    }
+
+    class StatoUtilizzato {
+        + confermaPrenotazione(biglietto: Biglietto): void
+        + utilizzaBiglietto(biglietto: Biglietto): void
+        + rimborsaBiglietto(biglietto: Biglietto): void
+        + modificaBiglietto(biglietto: Biglietto): void
+        + getNomeStato(): String
+    }
+
+    class StatoRimborsato {
+        + confermaPrenotazione(biglietto: Biglietto): void
+        + utilizzaBiglietto(biglietto: Biglietto): void
+        + rimborsaBiglietto(biglietto: Biglietto): void
+        + modificaBiglietto(biglietto: Biglietto): void
+        + getNomeStato(): String
+    }
+
+    class StatoScaduto {
+        + confermaPrenotazione(biglietto: Biglietto): void
+        + utilizzaBiglietto(biglietto: Biglietto): void
+        + rimborsaBiglietto(biglietto: Biglietto): void
+        + modificaBiglietto(biglietto: Biglietto): void
+        + getNomeStato(): String
+    }
+}
+
+package "Strategy Pattern" {
+    interface PricingStrategy {
+        + calcolaPrezzo(biglietto: Biglietto): double
+    }
+
+    class PricingContext {
+        - strategy: PricingStrategy
+        + setStrategy(strategy: PricingStrategy): void
+        + calcolaPrezzo(biglietto: Biglietto): double
+    }
+
+    class PrezzoBaseStrategy {
+        + calcolaPrezzo(biglietto: Biglietto): double
+    }
+
+    class PrezzoPromozioneStrategy {
+        - sconto: double
+        + calcolaPrezzo(biglietto: Biglietto): double
+    }
+
+    class PrezzoFedeltaStrategy {
+        - percentualeFedelta: double
+        + calcolaPrezzo(biglietto: Biglietto): double
+    }
+}
+
+package "Observer Pattern" {
+    interface NotificaObserver {
+        + aggiorna(evento: TrenoEvento): void
+        + getCanale(): String
+    }
+
+    class TrenoSubject {
+        - observers: List<NotificaObserver>
+        + attach(observer: NotificaObserver): void
+        + detach(observer: NotificaObserver): void
+        + notifyObservers(evento: TrenoEvento): void
+    }
+
+    class TrenoEvento {
+        - trenoId: String
+        - tipoEvento: String
+        - messaggio: String
+        + toString(): String
+    }
+}
+
+package "Builder Pattern" {
+    class RicercaBiglietti {
+        - partenza: String
+        - arrivo: String
+        - dataViaggio: LocalDateTime
+        - classeServizio: String
+        - soloAltaVelocita: boolean
+        - includiPromozioni: boolean
+    }
+
+    class Builder {
+        + partenza(partenza: String): Builder
+        + arrivo(arrivo: String): Builder
+        + dataViaggio(data: LocalDateTime): Builder
+        + classeServizio(classe: String): Builder
+        + soloAltaVelocita(solo: boolean): Builder
+        + includiPromozioni(includi: boolean): Builder
+        + build(): RicercaBiglietti
+    }
+}
+
+BigliettoFactory <|.. BigliettoFactoryImpl
+Command <|.. AcquistoBigliettoCommand
+Command <|.. ModificaBigliettoCommand
+Command <|.. PrenotazioneCommand
+CommandManager o-- Command
+
+StatoBiglietto <|.. StatoPrenotato
+StatoBiglietto <|.. StatoPagato
+StatoBiglietto <|.. StatoUtilizzato
+StatoBiglietto <|.. StatoRimborsato
+StatoBiglietto <|.. StatoScaduto
+
+PricingStrategy <|.. PrezzoBaseStrategy
+PricingStrategy <|.. PrezzoPromozioneStrategy
+PricingStrategy <|.. PrezzoFedeltaStrategy
+PricingContext o-- PricingStrategy
+
+TrenoSubject o-- NotificaObserver
+TrenoSubject ..> TrenoEvento
+
+RicercaBiglietti +-- Builder
+
+@enduml

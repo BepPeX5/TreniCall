@@ -1,0 +1,76 @@
+@startuml
+!theme plain
+title TreniCal - State Diagram: Ciclo di Vita Biglietto
+
+[*] --> PRENOTATO : creaPrenotazione()
+
+state PRENOTATO {
+    PRENOTATO : Entry: setStato(StatoPrenotato)
+    PRENOTATO : Exit: save in database
+    PRENOTATO : Internal: Timer scadenza 10 minuti
+}
+
+state PAGATO {
+    PAGATO : Entry: setStato(StatoPagato)
+    PAGATO : Exit: Associa a treno
+    PAGATO : Internal: Biglietto utilizzabile
+}
+
+state UTILIZZATO {
+    UTILIZZATO : Entry: setStato(StatoUtilizzato)
+    UTILIZZATO : Exit: Viaggio completato
+    UTILIZZATO : Internal: Non modificabile
+}
+
+state RIMBORSATO {
+    RIMBORSATO : Entry: setStato(StatoRimborsato)
+    RIMBORSATO : Exit: Credito emesso
+    RIMBORSATO : Internal: Biglietto annullato
+}
+
+state SCADUTO {
+    SCADUTO : Entry: setStato(StatoScaduto)
+    SCADUTO : Exit: Rimozione automatica
+    SCADUTO : Internal: Non recuperabile
+}
+
+PRENOTATO --> PAGATO : confermaAcquisto()\n[prenotazione.isAttiva()]
+PRENOTATO --> SCADUTO : timeout 10 minuti\n[!prenotazione.isAttiva()]
+PRENOTATO --> SCADUTO : verificaScadenze()\n[@Scheduled]
+
+PAGATO --> UTILIZZATO : utilizzaBiglietto()\n[data viaggio passata]
+PAGATO --> RIMBORSATO : rimborsaBiglietto()\n[richiesta rimborso]
+PAGATO --> PAGATO : modificaBiglietto()\n[cambia data/orario]
+
+UTILIZZATO --> [*] : Fine ciclo vita
+RIMBORSATO --> [*] : Fine ciclo vita
+SCADUTO --> [*] : deleteById()
+
+note right of PRENOTATO
+    Stato iniziale quando si crea
+    una prenotazione. Ha 10 minuti
+    per essere confermata.
+end note
+
+note right of PAGATO
+    Stato dopo pagamento confermato.
+    Il biglietto è valido e può essere
+    modificato o rimborsato.
+end note
+
+note right of SCADUTO
+    Stato finale per prenotazioni
+    non confermate entro 10 minuti.
+    Rimozione automatica dal sistema.
+end note
+
+note bottom
+    Pattern State implementato con:
+    - StatoBiglietto interface
+    - Stati concreti: StatoPrenotato, StatoPagato, ecc.
+    - Transizioni gestite da metodi di business
+    - Timer automatici con @Scheduled
+end note
+
+@enduml
+

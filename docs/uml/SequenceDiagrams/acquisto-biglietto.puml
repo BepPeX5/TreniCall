@@ -1,0 +1,69 @@
+@startuml
+!theme plain
+title TreniCal - Sequence Diagram: Acquisto Biglietto
+
+actor Cliente as C
+participant "Client GUI" as GUI
+participant "gRPC Client" as GC
+participant "BiglietteriaServiceImpl" as BSI
+participant "BiglietteriaService" as BS
+participant "BigliettoFactory" as BF
+participant "CommandManager" as CM
+participant "AcquistoBigliettoCommand" as ABC
+participant "PromozioneService" as PS
+participant "BigliettoRepository" as BR
+participant "DisponibilitaTrenoRepository" as DTR
+participant "TrenoRepository" as TR
+
+C -> GUI: Seleziona treno e clicca "Acquista"
+GUI -> GUI: Mostra dialog pagamento
+C -> GUI: Inserisce dati carta di credito
+GUI -> GUI: Valida dati pagamento
+GUI -> GC: acquistaBiglietto(clienteId, tipo, partenza, arrivo, data, distanza)
+
+GC -> BSI: acquistaBiglietto(request)
+BSI -> BS: acquista(clienteId, tipo, partenza, arrivo, dataViaggio, distanzaKm)
+
+BS -> "ClienteRepository": findById(clienteId)
+"ClienteRepository" --> BS: Cliente
+
+BS -> BF: creaBiglietto(tipo, partenza, arrivo, dataViaggio, distanzaKm, clienteId)
+BF -> TR: findAll()
+TR --> BF: List<Treno>
+BF -> BF: trovaTrenoRealePerTratta(tipo, partenza, arrivo)
+BF --> BS: Biglietto
+
+BS -> TR: findById(trenoAssociato)
+TR --> BS: Treno
+
+BS -> DTR: findByTrenoAndDataViaggio(treno, dataViaggio)
+alt Disponibilità esistente
+    DTR --> BS: DisponibilitaTreno
+else Nuova disponibilità
+    DTR --> BS: Empty
+    BS -> BS: new DisponibilitaTreno(treno, data, postiTotali)
+end
+
+BS -> DTR: save(disponibilita)
+BS -> "DisponibilitaTreno": prenotaPosti(1)
+
+BS -> CM: executeCommand(new AcquistoBigliettoCommand(biglietto))
+CM -> ABC: execute()
+ABC -> "Biglietto": setStato(new StatoPagato())
+
+BS -> PS: applicaPromozioni(biglietto, cliente.isFedelta())
+PS --> BS: prezzoFinale
+
+BS -> "Biglietto": setPrezzo(prezzoFinale)
+BS -> BR: save(biglietto)
+BR --> BS: Biglietto
+
+BS --> BSI: Biglietto
+BSI -> BSI: toResponse(biglietto)
+BSI --> GC: BigliettoResponse
+
+GC --> GUI: BigliettoResponse
+GUI -> GUI: showSuccessMessage("Biglietto acquistato!")
+GUI -> GUI: aggiornaBiglietti()
+
+@enduml

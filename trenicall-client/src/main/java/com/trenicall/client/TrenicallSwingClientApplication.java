@@ -1267,7 +1267,6 @@ public class TrenicallSwingClientApplication extends JFrame {
 
             String codice = selected.split("\\|")[0].trim();
 
-            // Registrazione per il treno selezionato
             grpcService.seguiTreno(currentClientId, codice, new StreamObserver<NotificaResponse>() {
                 @Override
                 public void onNext(NotificaResponse value) {

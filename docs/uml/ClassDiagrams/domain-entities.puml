@@ -1,0 +1,118 @@
+@startuml
+!theme plain
+title TreniCal - Domain Entities Class Diagram
+
+package "Domain Entities" {
+
+    class Biglietto {
+        - id: String
+        - clienteId: String
+        - tipo: TipoBiglietto
+        - partenza: String
+        - arrivo: String
+        - dataViaggio: LocalDateTime
+        - distanzaKm: Integer
+        - prezzo: Double
+        - statoNome: String
+        - trenoAssociato: String
+        - stato: StatoBiglietto
+        + modificaBiglietto(): void
+        + setStato(stato: StatoBiglietto): void
+    }
+
+    class Cliente {
+        - id: String
+        - nome: String
+        - email: String
+        - telefono: String
+        - fedelta: boolean
+        - biglietti: Set<Biglietto>
+        + abilitaFedelta(): void
+        + aggiungiBiglietto(biglietto: Biglietto): void
+    }
+
+    class Prenotazione {
+        - id: String
+        - dataCreazione: LocalDateTime
+        - scadenza: LocalDateTime
+        - attiva: boolean
+        + isAttiva(): boolean
+        + scaduta(): void
+    }
+
+    class Treno {
+        - id: String
+        - nome: String
+        - postiTotali: int
+        - postiDisponibili: int
+        - binarioPartenza: String
+        - cancellato: boolean
+        - ritardoMinuti: int
+        - passeggeri: List<Cliente>
+        + prenotaPosti(n: int): void
+        + rilasciaPosti(n: int): void
+        + haPostiDisponibili(richiesti: int): boolean
+        + cancellaTreno(): void
+        + aggiungiPasseggero(cliente: Cliente): void
+    }
+
+    class Tratta {
+        - id: String
+        - stazionePartenza: String
+        - stazioneArrivo: String
+        - distanzaKm: int
+    }
+
+    class Promozione {
+        - id: String
+        - nome: String
+        - percentualeSconto: double
+        - inizio: LocalDateTime
+        - fine: LocalDateTime
+        - trattaPartenza: String
+        - trattaArrivo: String
+        - soloFedelta: boolean
+        + isAttiva(): boolean
+        + isApplicabile(partenza: String, arrivo: String, fedelta: boolean): boolean
+    }
+
+    class Notifica {
+        - id: String
+        - trenoId: String
+        - clienteId: String
+        - canale: String
+        - messaggio: String
+        - timestamp: LocalDateTime
+        - letta: boolean
+    }
+
+    class DisponibilitaTreno {
+        - id: Long
+        - dataViaggio: LocalDate
+        - postiDisponibili: int
+        + haPostiDisponibili(richiesti: int): boolean
+        + prenotaPosti(n: int): void
+        + rilasciaPosti(n: int): void
+    }
+
+    enum TipoBiglietto {
+        REGIONALE
+        INTERCITY
+        FRECCIA_ROSSA
+        + getPrezzoPerKm(): double
+        + getDescrizione(): String
+        + fromString(tipo: String): TipoBiglietto
+    }
+}
+
+
+Cliente ||--o{ Biglietto : "possiede"
+Prenotazione ||--|| Cliente : "appartiene a"
+Prenotazione ||--|| Biglietto : "contiene"
+Prenotazione }o--|| Treno : "per"
+Treno }o--|| Tratta : "percorre"
+Treno ||--o{ DisponibilitaTreno : "ha disponibilità"
+Biglietto }o--|| TipoBiglietto : "tipo"
+Treno }o--o{ Cliente : "trasporta"
+
+@enduml

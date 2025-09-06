@@ -1,0 +1,134 @@
+@startuml
+!theme plain
+title TreniCal - Business Services Class Diagram
+
+package "Business Services" {
+
+    class BiglietteriaService {
+        - factory: BigliettoFactory
+        - commandManager: CommandManager
+        - bigliettoRepository: BigliettoRepository
+        - clienteRepository: ClienteRepository
+        - promozioneService: PromozioneService
+        - trenoRepository: TrenoRepository
+        - disponibilitaTrenoRepository: DisponibilitaTrenoRepository
+        + ricerca(ricerca: RicercaBiglietti): List<Biglietto>
+        + acquista(clienteId: String, tipo: TipoBiglietto, ...): Biglietto
+        + modifica(biglietto: Biglietto, nuovaData: LocalDateTime): Biglietto
+        + getArchivioBiglietti(): List<Biglietto>
+    }
+
+    class ClienteService {
+        - clienteRepository: ClienteRepository
+        + registraCliente(cliente: Cliente): Cliente
+        + trovaClientePerId(id: String): Cliente
+        + abilitaFedelta(clienteId: String): Cliente
+        + getStoricoClienti(): List<Cliente>
+    }
+
+    class PrenotazioneService {
+        - factory: BigliettoFactory
+        - commandManager: CommandManager
+        - prenotazioneRepository: PrenotazioneRepository
+        - bigliettoRepository: BigliettoRepository
+        - clienteRepository: ClienteRepository
+        - trenoRepository: TrenoRepository
+        - notificaServiceImpl: NotificaServiceImpl
+        + creaPrenotazione(clienteId: String, tipo: TipoBiglietto, ...): Prenotazione
+        + verificaScadenze(): void
+        + verificaScadenzeImminenti(): void
+        + confermaAcquisto(prenotazioneId: String): Biglietto
+        + getPrenotazioniAttive(): Collection<Prenotazione>
+        + getPrenotazioniAttiveByCliente(clienteId: String): Collection<Prenotazione>
+    }
+
+    class PromozioneService {
+        - promozioneRepository: PromozioneRepository
+        - pricingContext: PricingContext
+        + creaPromozione(promozione: Promozione): Promozione
+        + applicaPromozioni(biglietto: Biglietto, fedelta: boolean): double
+        + getPromozioniAttive(): List<Promozione>
+        + getPromozioniPerCliente(fedelta: boolean): List<Promozione>
+    }
+
+    class NotificaService {
+        - subject: TrenoSubject
+        - notificaRepository: NotificaRepository
+        + registraObserver(observer: NotificaObserver): void
+        + rimuoviObserver(observer: NotificaObserver): void
+        + inviaNotifica(evento: TrenoEvento, clienteId: String, canale: String): void
+        + getNotificheCliente(clienteId: String): List<Notifica>
+    }
+}
+
+package "Repositories" {
+    interface BigliettoRepository {
+        + findByClienteId(clienteId: String): List<Biglietto>
+        + findByPartenzaAndArrivo(partenza: String, arrivo: String): List<Biglietto>
+        + findByPartenzaAndArrivoAndDataViaggio(...): List<Biglietto>
+    }
+
+    interface ClienteRepository {
+        + findById(id: String): Optional<Cliente>
+        + save(cliente: Cliente): Cliente
+    }
+
+    interface PrenotazioneRepository {
+        + findByClienteId(clienteId: String): List<Prenotazione>
+        + findByAttivaTrue(): List<Prenotazione>
+    }
+
+    interface PromozioneRepository {
+        + findByAttiva(attiva: boolean): List<Promozione>
+        + findBySoloFedelta(soloFedelta: boolean): List<Promozione>
+    }
+
+    interface NotificaRepository {
+        + findByClienteId(clienteId: String): List<Notifica>
+    }
+
+    interface TrenoRepository {
+        + findByTrattaId(trattaId: String): List<Treno>
+    }
+
+    interface TrattaRepository {
+    }
+
+    interface DisponibilitaTrenoRepository {
+        + findByTrenoAndDataViaggio(treno: Treno, data: LocalDate): Optional<DisponibilitaTreno>
+    }
+}
+
+package "External Dependencies" {
+    class NotificaServiceImpl {
+        + inviaNotificaScadenza(clienteId: String, messaggio: String, trenoId: String): void
+    }
+}
+
+
+BiglietteriaService --> BigliettoRepository
+BiglietteriaService --> ClienteRepository
+BiglietteriaService --> TrenoRepository
+BiglietteriaService --> DisponibilitaTrenoRepository
+BiglietteriaService --> PromozioneService
+BiglietteriaService --> BigliettoFactory
+BiglietteriaService --> CommandManager
+
+ClienteService --> ClienteRepository
+
+PrenotazioneService --> PrenotazioneRepository
+PrenotazioneService --> BigliettoRepository
+PrenotazioneService --> ClienteRepository
+PrenotazioneService --> TrenoRepository
+PrenotazioneService --> NotificaServiceImpl
+PrenotazioneService --> BigliettoFactory
+PrenotazioneService --> CommandManager
+
+PromozioneService --> PromozioneRepository
+PromozioneService --> PricingContext
+
+NotificaService --> NotificaRepository
+NotificaService --> TrenoSubject
+
+@enduml
+

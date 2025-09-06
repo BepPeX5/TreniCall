@@ -1,0 +1,102 @@
+@startuml
+!theme plain
+title TreniCal - Sequence Diagram: Gestione Prenotazione con Scadenza
+
+actor Cliente as C
+participant "Client GUI" as GUI
+participant "gRPC Client" as GC
+participant "PrenotazioneServiceImpl" as PSI
+participant "PrenotazioneService" as PS
+participant "BigliettoFactory" as BF
+participant "PrenotazioneCommand" as PC
+participant "NotificaServiceImpl" as NSI
+participant "Prenotazione" as PREN
+participant "Biglietto" as BIG
+participant "Database" as DB
+
+== Creazione Prenotazione ==
+C -> GUI: Clicca "Crea Prenotazione"
+GUI -> GC: creaPrenotazione(clienteId, tipo, partenza, arrivo, data, distanza, minutiValidita)
+GC -> PSI: creaPrenotazione(request)
+PSI -> PS: creaPrenotazione(clienteId, tipo, partenza, arrivo, dataViaggio, distanzaKm, minutiValidita)
+
+PS -> "ClienteRepository": findById(clienteId)
+"ClienteRepository" --> PS: Cliente
+
+PS -> BF: creaBiglietto(tipo, partenza, arrivo, dataViaggio, distanzaKm, clienteId)
+BF --> PS: Biglietto
+
+PS -> "CommandManager": executeCommand(new PrenotazioneCommand(biglietto))
+"CommandManager" -> PC: execute()
+PC -> BIG: setStato(new StatoPrenotato())
+
+PS -> "BigliettoRepository": save(biglietto)
+PS -> PS: new Prenotazione(id, cliente, null, now, MINUTI_SCADENZA, biglietto)
+
+note right of PS
+    Il costruttore Prenotazione imposta:
+    - scadenza = now + 10 minuti
+    - attiva = true
+    - biglietto.stato = StatoPrenotato
+end note
+
+PS -> "PrenotazioneRepository": save(prenotazione)
+"PrenotazioneRepository" --> PS: Prenotazione
+
+PS --> PSI: Prenotazione
+PSI --> GC: PrenotazioneResponse
+GC --> GUI: Mostra "Prenotazione creata! Scadenza: 10 minuti"
+
+== Monitoraggio Scadenze (ogni minuto) ==
+loop Ogni 60 secondi
+    PS -> PS: verificaScadenzeImminenti() [@Scheduled]
+    PS -> "PrenotazioneRepository": findByAttivaTrue()
+    "PrenotazioneRepository" --> PS: List<Prenotazione>
+
+    loop Per ogni prenotazione
+        PS -> PREN: isAttiva()
+        PREN -> PREN: now.isBefore(scadenza)
+
+        alt Scadenza imminente (< 2 minuti)
+            PS -> NSI: inviaNotificaScadenza(clienteId, messaggio, trenoId)
+            NSI -> NSI: Trova globalSubscribers[clienteId]
+            NSI -> "StreamObserver": onNext(NotificaResponse)
+            "StreamObserver" --> GUI: Appare notifica in tempo reale
+
+        else Già scaduta
+            PS -> BIG: setStato(new StatoScaduto())
+            PS -> PREN: scaduta()
+            PS -> "PrenotazioneRepository": delete(prenotazione)
+            PS -> "BigliettoRepository": delete(biglietto)
+        end
+    end
+end
+
+== Conferma Acquisto ==
+C -> GUI: Clicca "Conferma Acquisto" su prenotazione
+GUI -> GUI: Mostra dialog pagamento
+C -> GUI: Inserisce dati carta
+GUI -> GC: confermaAcquistoPrenotazione(prenotazioneId)
+GC -> PSI: confermaAcquisto(request)
+PSI -> PS: confermaAcquisto(prenotazioneId)
+
+PS -> "PrenotazioneRepository": findById(prenotazioneId)
+"PrenotazioneRepository" --> PS: Prenotazione
+
+PS -> PREN: isAttiva()
+alt Prenotazione ancora attiva
+    PS -> BIG: setStato(new StatoPagato())
+    PS -> "BigliettoRepository": save(biglietto)
+    PS -> "TrenoRepository": findById(trenoAssociato)
+    PS -> "Treno": prenotaPosti(1)
+    PS -> "PrenotazioneRepository": deleteById(prenotazioneId)
+    PS --> PSI: Biglietto
+    PSI --> GC: BigliettoResponse
+    GC --> GUI: "Prenotazione confermata!"
+else Prenotazione scaduta
+    PS --> PSI: Exception("Prenotazione scaduta")
+    PSI --> GC: Status.INTERNAL
+    GC --> GUI: "Errore: Prenotazione scaduta"
+end
+
+@enduml

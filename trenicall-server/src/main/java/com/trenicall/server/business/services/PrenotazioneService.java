@@ -4,6 +4,7 @@ import com.trenicall.server.business.patterns.command.CommandManager;
 import com.trenicall.server.business.patterns.command.commands.PrenotazioneCommand;
 import com.trenicall.server.business.patterns.factory.BigliettoFactory;
 import com.trenicall.server.business.patterns.factory.BigliettoFactoryImpl;
+import com.trenicall.server.business.patterns.observer.TrenoEvento;
 import com.trenicall.server.business.patterns.state.states.StatoScaduto;
 import com.trenicall.server.business.patterns.state.states.StatoPagato;
 import com.trenicall.server.domain.entities.Biglietto;
@@ -16,6 +17,9 @@ import com.trenicall.server.domain.repositories.ClienteRepository;
 import com.trenicall.server.domain.repositories.TrenoRepository;
 import com.trenicall.server.domain.valueobjects.TipoBiglietto;
 
+import com.trenicall.server.grpc.impl.NotificaServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +39,9 @@ public class PrenotazioneService {
     private final ClienteRepository clienteRepository;
     private final TrenoRepository trenoRepository;
 
+    @Autowired
+    private NotificaServiceImpl notificaServiceImpl;
+
     private static final int MINUTI_SCADENZA = 10;
 
 
@@ -48,6 +55,7 @@ public class PrenotazioneService {
         this.clienteRepository = clienteRepository;
         this.trenoRepository = trenoRepository;
         this.factory = factory;
+
     }
 
     public Prenotazione creaPrenotazione(String clienteId, TipoBiglietto tipo, String partenza, String arrivo,
@@ -77,6 +85,29 @@ public class PrenotazioneService {
                 p.scaduta();
                 prenotazioneRepository.delete(p);
                 bigliettoRepository.delete(p.getBiglietto());
+            }
+        }
+    }
+
+    @Scheduled(fixedRate = 60000)
+    public void verificaScadenzeImminenti() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime soglia = now.plusMinutes(2);
+
+        List<Prenotazione> prenotazioni = prenotazioneRepository.findByAttivaTrue();
+
+        for (Prenotazione p : prenotazioni) {
+            if (p.isAttiva() && p.getScadenza().isAfter(now) && p.getScadenza().isBefore(soglia)) {
+                long minutiRimasti = java.time.Duration.between(now, p.getScadenza()).toMinutes();
+                String messaggio = "La tua prenotazione " + p.getId() +
+                        " scadrà tra " + minutiRimasti +
+                        " minuti. Conferma l'acquisto per non perderla!";
+
+                notificaServiceImpl.inviaNotificaScadenza(
+                        p.getCliente().getId(),
+                        messaggio,
+                        p.getBiglietto().getTrenoAssociato()
+                );
             }
         }
     }

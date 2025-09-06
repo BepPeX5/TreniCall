@@ -6,13 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="7b2f60aa-5bda-4144-97a6-af725741fe10" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/business/services/BiglietteriaServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/business/services/BiglietteriaServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/business/services/PrenotazioneServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/business/services/PrenotazioneServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/config/TestDataConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/config/TestDataConfiguration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/e2e/BiglietteriaGrpcEndToEndTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/e2e/BiglietteriaGrpcEndToEndTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/integration/BiglietteriaServiceIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/integration/BiglietteriaServiceIntegrationTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/integration/ClienteServiceIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/integration/ClienteServiceIntegrationTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/integration/PrenotazioneServiceIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/integration/PrenotazioneServiceIntegrationTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-client/src/main/java/com/trenicall/client/TrenicallSwingClientApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-client/src/main/java/com/trenicall/client/TrenicallSwingClientApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/TrenicallServerApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/TrenicallServerApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/PrenotazioneService.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/PrenotazioneService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/NotificaServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/NotificaServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,45 +41,45 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
-    "JUnit.BiglietteriaGrpcEndToEndTest.executor": "Run",
-    "JUnit.BiglietteriaServiceIntegrationTest.executor": "Run",
-    "JUnit.BiglietteriaServiceTest.executor": "Run",
-    "JUnit.ClienteGrpcEndToEndTest.executor": "Run",
-    "JUnit.ClienteServiceIntegrationTest.executor": "Run",
-    "JUnit.ClienteServiceTest.executor": "Run",
-    "JUnit.NotificaServiceTest.executor": "Run",
-    "JUnit.PrenotazioneServiceIntegrationTest.executor": "Run",
-    "JUnit.PrenotazioneServiceIntegrationTest.testCreaPrenotazioneConPersistenza.executor": "Run",
-    "JUnit.PrenotazioneServiceTest.executor": "Run",
-    "JUnit.PromozioneServiceTest.executor": "Run",
-    "Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor": "Run",
-    "Maven.trenicall-parent [clean].executor": "Run",
-    "Maven.trenicall-parent [compile].executor": "Run",
-    "Maven.trenicall-parent [install].executor": "Run",
-    "Maven.trenicall-server [clean].executor": "Run",
-    "Maven.trenicall-server [compile].executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Spring Boot.TrenicallServerApplication.executor": "Run",
-    "git-widget-placeholder": "main",
-    "jdk.selected.JAVA_MODULE": "19",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/Programmi utili/UNICAL/3 anno II semestre/Ingegneria del software/project/TreniCall/trenicall-server/src/main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "MavenSettings",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BiglietteriaGrpcEndToEndTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BiglietteriaServiceIntegrationTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BiglietteriaServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ClienteGrpcEndToEndTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ClienteServiceIntegrationTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ClienteServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.NotificaServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PrenotazioneServiceIntegrationTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PrenotazioneServiceIntegrationTest.testCreaPrenotazioneConPersistenza.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PrenotazioneServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PromozioneServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.trenicall-parent [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.trenicall-parent [compile].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.trenicall-parent [install].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.trenicall-server [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.trenicall-server [compile].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Spring Boot.TrenicallServerApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;19&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Programmi utili/UNICAL/3 anno II semestre/Ingegneria del software/project/TreniCall/trenicall-server/src/main&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Programmi utili\UNICAL\3 anno II semestre\Ingegneria del software\project\TreniCall\trenicall-server\src\main" />
@@ -172,6 +169,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="TrenicallAdminApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="trenicall-admin" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.trenicall.admin.TrenicallAdminApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="TrenicallServerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
       <module name="trenicall-server" />
@@ -254,6 +258,7 @@
       <workItem from="1756287549585" duration="6186000" />
       <workItem from="1756371947290" duration="26056000" />
       <workItem from="1756797826255" duration="48972000" />
+      <workItem from="1757201029273" duration="658000" />
     </task>
     <servers />
   </component>

@@ -1,0 +1,151 @@
+@startuml
+!theme plain
+title TreniCal - Deployment Diagram: Infrastruttura Sistema
+
+node "Development Environment" {
+
+    node "Client Workstation" {
+        artifact "trenicall-client.jar" as CLIENT_JAR
+        artifact "trenicall-admin.jar" as ADMIN_JAR
+
+        component "Swing Client GUI" as CLIENT_APP
+        component "Admin Console GUI" as ADMIN_APP
+
+        CLIENT_JAR --> CLIENT_APP
+        ADMIN_JAR --> ADMIN_APP
+    }
+
+    node "Server Machine" {
+        artifact "trenicall-server.jar" as SERVER_JAR
+
+        component "Spring Boot Application" as SPRING_APP {
+            port "gRPC Port 9090" as GRPC_PORT
+            port "Actuator Port 8080" as ACTUATOR_PORT
+        }
+
+        component "File System" as FS {
+            artifact "trenicall_notifications.txt" as NOTIF_FILE
+            artifact "application.properties" as CONFIG_FILE
+            artifact "logs/" as LOG_DIR
+        }
+
+        SERVER_JAR --> SPRING_APP
+        SPRING_APP --> FS
+    }
+
+    node "Database Server" {
+        database "MySQL 8.0" as MYSQL {
+            schema "trenicall_db" as DB_SCHEMA {
+                table "biglietti"
+                table "clienti"
+                table "prenotazioni"
+                table "promozioni"
+                table "notifiche"
+                table "treni"
+                table "tratte"
+                table "disponibilita_treno"
+            }
+        }
+
+        database "Redis Cache" as REDIS {
+            storage "Session Data"
+            storage "Cache Keys"
+        }
+    }
+}
+
+node "Test Environment" {
+
+    node "Test Runner" {
+        artifact "Test Classes" as TEST_CLASSES
+
+        component "Unit Tests" as UNIT_TESTS
+        component "Integration Tests" as INTEGRATION_TESTS
+        component "End-to-End gRPC Tests" as E2E_TESTS
+
+        TEST_CLASSES --> UNIT_TESTS
+        TEST_CLASSES --> INTEGRATION_TESTS
+        TEST_CLASSES --> E2E_TESTS
+    }
+
+    node "Test Database" {
+        database "H2 In-Memory" as H2_DB {
+            schema "testdb" as TEST_SCHEMA
+        }
+
+        component "TestDataConfiguration" as TEST_DATA
+        TEST_DATA --> H2_DB
+    }
+
+    node "Test gRPC Server" {
+        component "GrpcServerTestConfiguration" as TEST_GRPC {
+            port "Test gRPC Port 9091" as TEST_GRPC_PORT
+        }
+    }
+}
+
+node "Docker Environment" {
+
+    node "Docker Host" {
+
+        node "MySQL Container" {
+            database "mysql:8.0" as DOCKER_MYSQL {
+                port "Port 3306" as MYSQL_PORT
+                volume "/var/lib/mysql" as MYSQL_DATA
+            }
+        }
+
+        node "Redis Container" {
+            database "redis:alpine" as DOCKER_REDIS {
+                port "Port 6379" as REDIS_PORT
+                volume "/data" as REDIS_DATA
+            }
+        }
+
+        artifact "docker-compose.yml" as COMPOSE_FILE
+        COMPOSE_FILE --> DOCKER_MYSQL
+        COMPOSE_FILE --> DOCKER_REDIS
+    }
+}
+
+CLIENT_APP --> GRPC_PORT : gRPC/HTTP2
+ADMIN_APP --> NOTIF_FILE : File Write
+SPRING_APP --> MYSQL_PORT : JDBC
+SPRING_APP --> REDIS_PORT : Redis Protocol
+
+INTEGRATION_TESTS --> TEST_GRPC_PORT : gRPC Test
+E2E_TESTS --> TEST_GRPC_PORT : End-to-End
+UNIT_TESTS --> TEST_SCHEMA : H2 Connection
+
+MYSQL_PORT --> DB_SCHEMA : Database Access
+REDIS_PORT --> "Session Data" : Cache Access
+
+cloud "External Network" {
+    interface "Internet" as INTERNET
+}
+
+CLIENT_APP --> INTERNET : Network Access
+ADMIN_APP --> INTERNET : Network Access
+
+note top of "Development Environment"
+    Ambiente di sviluppo locale con:
+    - Client Swing standalone
+    - Server Spring Boot
+    - Database MySQL/Redis
+end note
+
+note top of "Test Environment"
+    Ambiente di test isolato con:
+    - Database H2 in-memory
+    - Server gRPC di test su porta 9091
+    - Test automatizzati JUnit 5
+end note
+
+note top of "Docker Environment"
+    Containerizzazione per:
+    - Isolamento dipendenze
+    - Portabilità ambiente
+    - Setup rapido database
+end note
+
+@enduml

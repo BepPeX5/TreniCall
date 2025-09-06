@@ -433,6 +433,33 @@ public class NotificaServiceImpl extends NotificaServiceGrpc.NotificaServiceImpl
         return template;
     }
 
+    public void inviaNotificaScadenza(String clienteId, String messaggio, String trenoId) {
+        System.out.println("📢 Invio notifica scadenza a cliente " + clienteId + ": " + messaggio);
+
+        StreamObserver<NotificaResponse> observer = globalSubscribers.get(clienteId);
+        if (observer != null) {
+            try {
+                NotificaResponse notifica = NotificaResponse.newBuilder()
+                        .setId(UUID.randomUUID().toString())
+                        .setClienteId(clienteId)
+                        .setCanale("SCADENZA")
+                        .setTipo("RESERVATION_EXPIRY")
+                        .setMessaggio("[SCADENZA-ALERT] " + messaggio)
+                        .setTimestamp(LocalDateTime.now().toString())
+                        .setLetta(false)
+                        .build();
+
+                observer.onNext(notifica);
+                System.out.println("✅ Notifica scadenza inviata a " + clienteId);
+            } catch (Exception e) {
+                System.err.println("❌ Errore invio notifica scadenza: " + e.getMessage());
+                globalSubscribers.remove(clienteId);
+            }
+        } else {
+            System.out.println("⚠️ Cliente " + clienteId + " non connesso per notifiche");
+        }
+    }
+
     @PreDestroy
     public void stop() {
         System.out.println("🔴 Arresto NotificaServiceImpl...");
