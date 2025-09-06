@@ -5,13 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7b2f60aa-5bda-4144-97a6-af725741fe10" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/trenicall-client/src/main/java/com/trenicall/client/TrenicallSwingClientApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-client/src/main/java/com/trenicall/client/TrenicallSwingClientApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/BiglietteriaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/BiglietteriaService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/PrenotazioneService.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/PrenotazioneService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/config/DatabaseInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/config/DatabaseInitializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/PrenotazioneServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/PrenotazioneServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/business/services/BiglietteriaServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/business/services/BiglietteriaServiceTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/business/services/PrenotazioneServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/business/services/PrenotazioneServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/config/TestDataConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/config/TestDataConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/e2e/BiglietteriaGrpcEndToEndTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/e2e/BiglietteriaGrpcEndToEndTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/integration/BiglietteriaServiceIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/integration/BiglietteriaServiceIntegrationTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/integration/ClienteServiceIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/integration/ClienteServiceIntegrationTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/integration/PrenotazioneServiceIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/test/java/com/trenicall/server/integration/PrenotazioneServiceIntegrationTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,40 +44,45 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.BiglietteriaServiceIntegrationTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.BiglietteriaServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ClienteServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.NotificaServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.PrenotazioneServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.PromozioneServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.trenicall-parent [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.trenicall-parent [compile].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.trenicall-parent [install].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.trenicall-server [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.trenicall-server [compile].executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Spring Boot.TrenicallServerApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;19&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Programmi utili/UNICAL/3 anno II semestre/Ingegneria del software/project/TreniCall/trenicall-server/src/main&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "JUnit.BiglietteriaGrpcEndToEndTest.executor": "Run",
+    "JUnit.BiglietteriaServiceIntegrationTest.executor": "Run",
+    "JUnit.BiglietteriaServiceTest.executor": "Run",
+    "JUnit.ClienteGrpcEndToEndTest.executor": "Run",
+    "JUnit.ClienteServiceIntegrationTest.executor": "Run",
+    "JUnit.ClienteServiceTest.executor": "Run",
+    "JUnit.NotificaServiceTest.executor": "Run",
+    "JUnit.PrenotazioneServiceIntegrationTest.executor": "Run",
+    "JUnit.PrenotazioneServiceIntegrationTest.testCreaPrenotazioneConPersistenza.executor": "Run",
+    "JUnit.PrenotazioneServiceTest.executor": "Run",
+    "JUnit.PromozioneServiceTest.executor": "Run",
+    "Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor": "Run",
+    "Maven.trenicall-parent [clean].executor": "Run",
+    "Maven.trenicall-parent [compile].executor": "Run",
+    "Maven.trenicall-parent [install].executor": "Run",
+    "Maven.trenicall-server [clean].executor": "Run",
+    "Maven.trenicall-server [compile].executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.TrenicallServerApplication.executor": "Run",
+    "git-widget-placeholder": "main",
+    "jdk.selected.JAVA_MODULE": "19",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/Programmi utili/UNICAL/3 anno II semestre/Ingegneria del software/project/TreniCall/trenicall-server/src/main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "MavenSettings",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Programmi utili\UNICAL\3 anno II semestre\Ingegneria del software\project\TreniCall\trenicall-server\src\main" />
@@ -89,7 +95,22 @@
       <recent name="com.trenicall.server.business.patterns.state" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.PrenotazioneServiceTest">
+  <component name="RunManager" selected="JUnit.BiglietteriaGrpcEndToEndTest">
+    <configuration name="BiglietteriaGrpcEndToEndTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="trenicall-server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.trenicall.server.e2e.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.trenicall.server.e2e" />
+      <option name="MAIN_CLASS_NAME" value="com.trenicall.server.e2e.BiglietteriaGrpcEndToEndTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="BiglietteriaServiceIntegrationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="trenicall-server" />
       <extension name="coverage">
@@ -105,62 +126,48 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ClienteServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ClienteGrpcEndToEndTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="trenicall-server" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.trenicall.server.business.services.*" />
+          <option name="PATTERN" value="com.trenicall.server.e2e.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="com.trenicall.server.business.services" />
-      <option name="MAIN_CLASS_NAME" value="com.trenicall.server.business.services.ClienteServiceTest" />
+      <option name="PACKAGE_NAME" value="com.trenicall.server.e2e" />
+      <option name="MAIN_CLASS_NAME" value="com.trenicall.server.e2e.ClienteGrpcEndToEndTest" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="NotificaServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="PrenotazioneServiceIntegrationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="trenicall-server" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.trenicall.server.business.services.*" />
+          <option name="PATTERN" value="com.trenicall.server.integration.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="com.trenicall.server.business.services" />
-      <option name="MAIN_CLASS_NAME" value="com.trenicall.server.business.services.NotificaServiceTest" />
+      <option name="PACKAGE_NAME" value="com.trenicall.server.integration" />
+      <option name="MAIN_CLASS_NAME" value="com.trenicall.server.integration.PrenotazioneServiceIntegrationTest" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="PrenotazioneServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="PrenotazioneServiceIntegrationTest.testCreaPrenotazioneConPersistenza" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="trenicall-server" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.trenicall.server.business.services.*" />
+          <option name="PATTERN" value="com.trenicall.server.integration.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="com.trenicall.server.business.services" />
-      <option name="MAIN_CLASS_NAME" value="com.trenicall.server.business.services.PrenotazioneServiceTest" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="PromozioneServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="trenicall-server" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.trenicall.server.business.services.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.trenicall.server.business.services" />
-      <option name="MAIN_CLASS_NAME" value="com.trenicall.server.business.services.PromozioneServiceTest" />
-      <option name="TEST_OBJECT" value="class" />
+      <option name="PACKAGE_NAME" value="com.trenicall.server.integration" />
+      <option name="MAIN_CLASS_NAME" value="com.trenicall.server.integration.PrenotazioneServiceIntegrationTest" />
+      <option name="METHOD_NAME" value="testCreaPrenotazioneConPersistenza" />
+      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -215,11 +222,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.PrenotazioneServiceTest" />
+        <item itemvalue="JUnit.BiglietteriaGrpcEndToEndTest" />
+        <item itemvalue="JUnit.ClienteGrpcEndToEndTest" />
         <item itemvalue="JUnit.BiglietteriaServiceIntegrationTest" />
-        <item itemvalue="JUnit.NotificaServiceTest" />
-        <item itemvalue="JUnit.PromozioneServiceTest" />
-        <item itemvalue="JUnit.ClienteServiceTest" />
+        <item itemvalue="JUnit.PrenotazioneServiceIntegrationTest" />
+        <item itemvalue="JUnit.PrenotazioneServiceIntegrationTest.testCreaPrenotazioneConPersistenza" />
       </list>
     </recent_temporary>
   </component>

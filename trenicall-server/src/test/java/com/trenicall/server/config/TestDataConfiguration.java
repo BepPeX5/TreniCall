@@ -2,7 +2,6 @@ package com.trenicall.server.config;
 
 import com.trenicall.server.domain.entities.*;
 import com.trenicall.server.domain.repositories.*;
-import com.trenicall.server.domain.valueobjects.TipoBiglietto;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -36,11 +35,13 @@ public class TestDataConfiguration {
             trattaRepository.save(tratta2);
             trattaRepository.save(tratta3);
 
-            Treno treno1 = new Treno("TR1", "Freccia Rossa 100", tratta1, 300, "1");
-            Treno treno2 = new Treno("TR2", "InterCity 200", tratta2, 200, "3");
+            Treno treno1 = new Treno("FR001", "Freccia Rossa", tratta1, 300, "1");
+            Treno treno2 = new Treno("IC001", "InterCity", tratta2, 200, "3");
+            Treno treno3 = new Treno("REG001", "Regionale", tratta3, 150, "2");
 
             trenoRepository.save(treno1);
             trenoRepository.save(treno2);
+            trenoRepository.save(treno3);
 
             Promozione promo1 = new Promozione("P1", "Estate 2024", 0.15,
                     LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(30),

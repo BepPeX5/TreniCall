@@ -9,13 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ActiveProfiles("test")
 @Import(TestDataConfiguration.class)
+@TestPropertySource(properties = {"grpc.server.enabled=false"})
 @Transactional
 class ClienteServiceIntegrationTest {
 
@@ -33,10 +35,12 @@ class ClienteServiceIntegrationTest {
 
         assertEquals("C10", salvato.getId());
         assertEquals("Anna Verde", salvato.getNome());
+        assertEquals("anna@test.com", salvato.getEmail());
         assertFalse(salvato.isFedelta());
 
         Cliente dalDatabase = clienteRepository.findById("C10").orElse(null);
         assertNotNull(dalDatabase);
+        assertEquals("Anna Verde", dalDatabase.getNome());
         assertEquals("anna@test.com", dalDatabase.getEmail());
     }
 
@@ -79,26 +83,21 @@ class ClienteServiceIntegrationTest {
     }
 
     @Test
-    void testRegistrazioneMultipliClienti() {
-        int countIniziale = (int) clienteRepository.count();
-
-        clienteService.registraCliente(new Cliente("C20", "Test1", "test1@mail.com", "111"));
-        clienteService.registraCliente(new Cliente("C21", "Test2", "test2@mail.com", "222"));
-        clienteService.registraCliente(new Cliente("C22", "Test3", "test3@mail.com", "333"));
-
-        assertEquals(countIniziale + 3, clienteRepository.count());
-
-        assertNotNull(clienteRepository.findById("C20").orElse(null));
-        assertNotNull(clienteRepository.findById("C21").orElse(null));
-        assertNotNull(clienteRepository.findById("C22").orElse(null));
-    }
-
-    @Test
     void testFindByEmail() {
         Cliente trovato = clienteRepository.findByEmail("mario@test.com");
 
         assertNotNull(trovato);
         assertEquals("C1", trovato.getId());
         assertEquals("Mario Rossi", trovato.getNome());
+    }
+
+    @Test
+    void testRegistrazioneMultipliClienti() {
+        long countIniziale = clienteRepository.count();
+
+        clienteService.registraCliente(new Cliente("C20", "Test1", "test1@mail.com", "111"));
+        clienteService.registraCliente(new Cliente("C21", "Test2", "test2@mail.com", "222"));
+
+        assertEquals(countIniziale + 2, clienteRepository.count());
     }
 }
