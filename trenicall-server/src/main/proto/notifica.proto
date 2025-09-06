@@ -31,6 +31,7 @@ message NotificaResponse {
   string messaggio = 4;
   string timestamp = 5;
   bool letta = 6;
+  string tipo = 7;
 }
 
 message LogoutRequest {

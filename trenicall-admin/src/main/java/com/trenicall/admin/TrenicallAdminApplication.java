@@ -1,10 +1,12 @@
 package com.trenicall.admin;
 
 import com.trenicall.admin.gui.AdminMainFrame;
+import com.trenicall.server.grpc.impl.NotificaServiceImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import javax.swing.*;

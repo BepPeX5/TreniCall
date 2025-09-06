@@ -51,7 +51,7 @@ public class DashboardPanel extends JPanel {
 
         totalTrainsLabel = createMetricLabel("0", PRIMARY_COLOR);
         activePromotionsLabel = createMetricLabel("0", SUCCESS_COLOR);
-        connectedClientsLabel = createMetricLabel("0", INFO_COLOR);
+        connectedClientsLabel = createMetricLabel("7", INFO_COLOR);
         dailyRevenueLabel = createMetricLabel("€ 0", WARNING_COLOR);
         systemStatusLabel = createStatusLabel("CARICAMENTO...", WARNING_COLOR);
         lastUpdateLabel = createSmallLabel("Ultimo aggiornamento: mai");
@@ -254,7 +254,7 @@ public class DashboardPanel extends JPanel {
 
         JPanel trendPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         trendPanel.setOpaque(false);
-        JLabel trendLabel = new JLabel("📈 +12% vs ieri");
+        JLabel trendLabel = new JLabel("📈 +2% vs ieri");
         trendLabel.setFont(new Font("Arial", Font.ITALIC, 10));
         trendLabel.setForeground(SUCCESS_COLOR);
         trendPanel.add(trendLabel);

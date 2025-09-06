@@ -1,6 +1,5 @@
 package com.trenicall.admin.service;
 
-import com.trenicall.server.business.patterns.observer.TrenoEvento;
 import com.trenicall.server.business.services.*;
 import com.trenicall.server.domain.entities.*;
 import com.trenicall.server.domain.repositories.*;
@@ -8,6 +7,11 @@ import com.trenicall.server.grpc.notifica.TrainInfo;
 import com.trenicall.server.grpc.promozione.PromozioneResponse;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -29,6 +33,9 @@ public class AdminService {
     private final Map<String, Object> dashboardCache;
     private final List<String> systemLogs;
     private final Set<String> connectedClients;
+
+    private static final String NOTIFICATIONS_FILE = System.getProperty("java.io.tmpdir") + "trenicall_notifications.txt";
+    private final Object fileWriteLock = new Object();
 
     public AdminService(ClienteService clienteService,
                         BiglietteriaService biglietteriaService,
@@ -56,8 +63,21 @@ public class AdminService {
     }
 
     private void initializeService() {
-        logSystemEvent("🚀 AdminService inizializzato (accesso diretto)");
+        logSystemEvent("🚀 AdminService inizializzato (accesso diretto al database)");
+        initializeNotificationFile();
         refreshDashboardData();
+    }
+
+    private void initializeNotificationFile() {
+        try {
+            File notifFile = new File(NOTIFICATIONS_FILE);
+            if (!notifFile.exists()) {
+                notifFile.createNewFile();
+                logSystemEvent("📁 File notifiche creato: " + notifFile.getAbsolutePath());
+            }
+        } catch (IOException e) {
+            logSystemEvent("❌ Errore creazione file notifiche: " + e.getMessage());
+        }
     }
 
     public void shutdown() {
@@ -96,8 +116,83 @@ public class AdminService {
             logSystemEvent("📊 Dati dashboard aggiornati (reali)");
 
         } catch (Exception e) {
-            logSystemEvent("⚠ Errore aggiornamento dashboard: " + e.getMessage());
+            logSystemEvent("⚠️ Errore aggiornamento dashboard: " + e.getMessage());
             dashboardCache.put("systemStatus", "ERROR");
+        }
+    }
+
+    public boolean createTrainNotification(String trainId, String eventType, String message) {
+        synchronized (fileWriteLock) {
+            try {
+                String timestamp = String.valueOf(System.currentTimeMillis());
+                String notification = String.format("%s|%s|%s|%s%n",
+                        trainId, eventType, message, timestamp);
+
+                // Scrive in modo atomico aggiungendo al file
+                Files.write(
+                        new File(NOTIFICATIONS_FILE).toPath(),
+                        notification.getBytes(),
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.APPEND
+                );
+
+                logSystemEvent("📢 Notifica treno " + trainId + " scritta su file: " + message);
+                return true;
+
+            } catch (Exception e) {
+                logSystemEvent("❌ Errore scrittura notifica: " + e.getMessage());
+                e.printStackTrace();
+                return false;
+            }
+        }
+    }
+
+    public boolean broadcastNotification(String message, String eventType) {
+        synchronized (fileWriteLock) {
+            try {
+                String timestamp = String.valueOf(System.currentTimeMillis());
+                String notification = String.format("BROADCAST|%s|%s|%s%n",
+                        eventType, message, timestamp);
+
+                // Scrive in modo atomico aggiungendo al file
+                Files.write(
+                        new File(NOTIFICATIONS_FILE).toPath(),
+                        notification.getBytes(),
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.APPEND
+                );
+
+                logSystemEvent("📡 Broadcast scritto su file: " + message);
+                return true;
+
+            } catch (Exception e) {
+                logSystemEvent("❌ Errore scrittura broadcast: " + e.getMessage());
+                e.printStackTrace();
+                return false;
+            }
+        }
+    }
+
+    public boolean testNotificationSystem() {
+        boolean trainNotificationOk = createTrainNotification("TEST001", "TEST", "Test notifica treno");
+        boolean broadcastOk = broadcastNotification("Test broadcast globale", "TEST");
+
+        logSystemEvent("🧪 Test sistema notifiche: Treno=" + trainNotificationOk + ", Broadcast=" + broadcastOk);
+        return trainNotificationOk && broadcastOk;
+    }
+
+    public String getNotificationFileStatus() {
+        File notifFile = new File(NOTIFICATIONS_FILE);
+        if (!notifFile.exists()) {
+            return "❌ File non esiste";
+        }
+
+        try {
+            List<String> lines = Files.readAllLines(notifFile.toPath());
+            return String.format("✅ File esiste, %d linee, %d bytes",
+                    lines.size(), notifFile.length());
+        } catch (IOException e) {
+            return "❌ Errore lettura file: " + e.getMessage();
         }
     }
 
@@ -110,9 +205,40 @@ public class AdminService {
             logSystemEvent("🚂 Caricati " + trains.size() + " treni (database)");
             return result;
         } catch (Exception e) {
-            logSystemEvent("⚠ Errore caricamento treni: " + e.getMessage());
+            logSystemEvent("⚠️ Errore caricamento treni: " + e.getMessage());
             return new ArrayList<>();
         }
+    }
+
+    public List<Map<String, Object>> getBigliettiOverview() {
+        List<Map<String, Object>> biglietti = new ArrayList<>();
+
+        try {
+            List<Biglietto> allBiglietti = bigliettoRepository.findAll();
+
+            for (Biglietto biglietto : allBiglietti) {
+                Map<String, Object> bigliettoData = new HashMap<>();
+                bigliettoData.put("id", biglietto.getId());
+                bigliettoData.put("clienteId", biglietto.getClienteId());
+                bigliettoData.put("tipo", biglietto.getTipo());
+                bigliettoData.put("partenza", biglietto.getPartenza());
+                bigliettoData.put("arrivo", biglietto.getArrivo());
+                bigliettoData.put("dataViaggio", biglietto.getDataViaggio().toString());
+                bigliettoData.put("prezzo", biglietto.getPrezzo());
+                bigliettoData.put("stato", biglietto.getStato() != null ?
+                        biglietto.getStato().getNomeStato() : "PAGATO");
+                bigliettoData.put("trenoAssociato", biglietto.getTrenoAssociato());
+
+                biglietti.add(bigliettoData);
+            }
+
+            logSystemEvent("🎫 Panoramica " + biglietti.size() + " biglietti caricata (database)");
+
+        } catch (Exception e) {
+            logSystemEvent("⚠️ Errore caricamento biglietti: " + e.getMessage());
+        }
+
+        return biglietti;
     }
 
     public List<TrainInfo> searchTrains(String query) {
@@ -135,7 +261,7 @@ public class AdminService {
                     .map(this::trenoToTrainInfo)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            logSystemEvent("⚠ Errore ricerca treni: " + e.getMessage());
+            logSystemEvent("⚠️ Errore ricerca treni: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -149,7 +275,7 @@ public class AdminService {
             logSystemEvent("💰 Caricate " + promotions.size() + " promozioni (database)");
             return result;
         } catch (Exception e) {
-            logSystemEvent("⚠ Errore caricamento promozioni: " + e.getMessage());
+            logSystemEvent("⚠️ Errore caricamento promozioni: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -170,7 +296,7 @@ public class AdminService {
             refreshDashboardData();
             return salvata;
         } catch (Exception e) {
-            logSystemEvent("⚠ Errore creazione promozione: " + e.getMessage());
+            logSystemEvent("⚠️ Errore creazione promozione: " + e.getMessage());
             throw e;
         }
     }
@@ -197,14 +323,14 @@ public class AdminService {
 
                     clientStats.add(stats);
                 } catch (Exception e) {
-                    logSystemEvent("⚠ Errore elaborazione cliente " + client.getId() + ": " + e.getMessage());
+                    logSystemEvent("⚠️ Errore elaborazione cliente " + client.getId() + ": " + e.getMessage());
                 }
             }
 
             logSystemEvent("👥 Statistiche " + clientStats.size() + " clienti elaborate (database)");
 
         } catch (Exception e) {
-            logSystemEvent("⚠ Errore elaborazione statistiche clienti: " + e.getMessage());
+            logSystemEvent("⚠️ Errore elaborazione statistiche clienti: " + e.getMessage());
         }
 
         return clientStats;
@@ -232,86 +358,10 @@ public class AdminService {
             logSystemEvent("🎫 Panoramica " + bookings.size() + " prenotazioni caricata (database)");
 
         } catch (Exception e) {
-            logSystemEvent("⚠ Errore caricamento prenotazioni: " + e.getMessage());
+            logSystemEvent("⚠️ Errore caricamento prenotazioni: " + e.getMessage());
         }
 
         return bookings;
-    }
-
-    public boolean createTrainNotification(String trainId, String eventType, String message) {
-        try {
-            TrenoEvento evento = new TrenoEvento(trainId, eventType, message);
-
-            List<Biglietto> bigliettiTreno = bigliettoRepository.findAll().stream()
-                    .filter(b -> trainId.equals(b.getTrenoAssociato()))
-                    .collect(Collectors.toList());
-
-            int notificheMandateCount = 0;
-
-            for (Biglietto biglietto : bigliettiTreno) {
-                String clienteId = biglietto.getClienteId();
-                String notificaMessage = String.format(
-                        "AGGIORNAMENTO TRENO %s: %s - %s",
-                        trainId, eventType, message
-                );
-
-                notificaService.inviaNotifica(evento, clienteId, "ADMIN_ALERT");
-                notificheMandateCount++;
-            }
-
-            Collection<Prenotazione> prenotazioniTreno = prenotazioneService.getPrenotazioniAttive()
-                    .stream()
-                    .filter(p -> trainId.equals(p.getBiglietto().getTrenoAssociato()))
-                    .collect(Collectors.toList());
-
-            for (Prenotazione prenotazione : prenotazioniTreno) {
-                String clienteId = prenotazione.getCliente().getId();
-                String notificaMessage = String.format(
-                        "AGGIORNAMENTO PRENOTAZIONE TRENO %s: %s - %s",
-                        trainId, eventType, message
-                );
-
-                notificaService.inviaNotifica(evento, clienteId, "ADMIN_ALERT");
-                notificheMandateCount++;
-            }
-
-            String logMessage = String.format(
-                    "📢 Notifica treno %s inviata a %d clienti: %s - %s",
-                    trainId, notificheMandateCount, eventType, message
-            );
-            logSystemEvent(logMessage);
-
-            return true;
-        } catch (Exception e) {
-            logSystemEvent("⚠ Errore creazione notifica treno: " + e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean broadcastNotification(String message, String type) {
-        try {
-            TrenoEvento evento = new TrenoEvento("BROADCAST", type, message);
-
-            List<Cliente> allClients = clienteRepository.findAll();
-            int notificheMandateCount = 0;
-
-            for (Cliente client : allClients) {
-                String broadcastMessage = String.format("[BROADCAST-%s] %s", type.toUpperCase(), message);
-                notificaService.inviaNotifica(evento, client.getId(), "BROADCAST");
-                notificheMandateCount++;
-            }
-
-            String logMessage = String.format(
-                    "📡 Broadcast inviato a %d clienti: [%s] %s",
-                    notificheMandateCount, type.toUpperCase(), message
-            );
-            logSystemEvent(logMessage);
-
-            return true;
-        } catch (Exception e) {
-            logSystemEvent("⚠ Errore invio broadcast: " + e.getMessage());
-            return false;
-        }
     }
 
     public Map<String, Object> getSystemHealthMetrics() {
@@ -345,7 +395,7 @@ public class AdminService {
             logSystemEvent("💻 Metriche sistema elaborate");
 
         } catch (Exception e) {
-            logSystemEvent("⚠ Errore raccolta metriche sistema: " + e.getMessage());
+            logSystemEvent("⚠️ Errore raccolta metriche sistema: " + e.getMessage());
         }
 
         return metrics;
@@ -382,7 +432,7 @@ public class AdminService {
             logSystemEvent("🚂 Statistiche treni elaborate (database)");
 
         } catch (Exception e) {
-            logSystemEvent("⚠ Errore elaborazione statistiche treni: " + e.getMessage());
+            logSystemEvent("⚠️ Errore elaborazione statistiche treni: " + e.getMessage());
         }
 
         return stats;
@@ -411,7 +461,7 @@ public class AdminService {
             logSystemEvent("💰 Metriche finanziarie elaborate (database)");
 
         } catch (Exception e) {
-            logSystemEvent("⚠ Errore elaborazione metriche finanziarie: " + e.getMessage());
+            logSystemEvent("⚠️ Errore elaborazione metriche finanziarie: " + e.getMessage());
         }
 
         return metrics;
@@ -441,18 +491,6 @@ public class AdminService {
         }
 
         System.out.println(logEntry);
-    }
-
-    private Map<String, Object> trenoToMap(Treno treno) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("codice", treno.getId());
-        map.put("nome", treno.getNome());
-        map.put("tratta", treno.getTratta() != null ?
-                (treno.getTratta().getStazionePartenza() + " → " + treno.getTratta().getStazioneArrivo()) :
-                "N/A");
-        map.put("postiTotali", treno.getPostiTotali());
-        map.put("postiDisponibili", treno.getPostiDisponibili());
-        return map;
     }
 
     private TrainInfo trenoToTrainInfo(Treno treno) {

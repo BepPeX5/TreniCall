@@ -408,10 +408,14 @@ public class PromotionsManagementPanel extends JPanel {
                 new JTextField(20),
                 new JTextField(20),
                 new JSpinner(new SpinnerNumberModel(10, 1, 50, 1)),
-                new JTextField("2024-12-25T00:00:00", 20),
-                new JTextField("2024-12-31T23:59:59", 20),
-                new JComboBox<>(new String[]{"Roma Termini", "Milano Centrale", "Napoli Centrale", "Torino Porta Nuova"}),
-                new JComboBox<>(new String[]{"Milano Centrale", "Roma Termini", "Torino Porta Nuova", "Napoli Centrale"})
+                new JTextField("2025-12-25T00:00:00", 20),
+                new JTextField("2025-12-31T23:59:59", 20),
+                new JComboBox<>(new String[]{"Roma Termini", "Milano Centrale", "Napoli Centrale", "Torino Porta Nuova",
+                        "Firenze Santa Maria Novella", "Bologna Centrale", "Venice Santa Lucia",
+                        "Bari Centrale", "Palermo Centrale", "Genova Piazza Principe", "Cosenza"}),
+                new JComboBox<>(new String[]{"Roma Termini", "Milano Centrale", "Napoli Centrale", "Torino Porta Nuova",
+                        "Firenze Santa Maria Novella", "Bologna Centrale", "Venice Santa Lucia",
+                        "Bari Centrale", "Palermo Centrale", "Genova Piazza Principe", "Cosenza"})
         };
 
         for (int i = 0; i < labels.length; i++) {
@@ -439,8 +443,33 @@ public class PromotionsManagementPanel extends JPanel {
         JButton cancelBtn = createActionButton("Annulla", new Color(149, 165, 166));
 
         createBtn.addActionListener(e -> {
-            showInfoMessage("Nuova Promozione", "Funzionalità creazione promozione in sviluppo.");
-            dialog.dispose();
+            try {
+                String nome = ((JTextField)fields[0]).getText().trim();
+                double sconto = ((Integer)((JSpinner)fields[2]).getValue()) / 100.0;
+                String dataInizio = ((JTextField)fields[3]).getText().trim();
+                String dataFine = ((JTextField)fields[4]).getText().trim();
+                String partenza = (String)((JComboBox<?>)fields[5]).getSelectedItem();
+                String arrivo = (String)((JComboBox<?>)fields[6]).getSelectedItem();
+                boolean fedeltaOnly = fedeltaCheck.isSelected();
+
+                if (nome.isEmpty()) {
+                    showErrorDialog("Errore", "Inserisci il nome della promozione");
+                    return;
+                }
+
+                LocalDateTime inizio = LocalDateTime.parse(dataInizio);
+                LocalDateTime fine = LocalDateTime.parse(dataFine);
+
+                adminService.createPromotion(nome, sconto, inizio, fine, partenza, arrivo, fedeltaOnly);
+
+                showInfoMessage("Successo", "Promozione '" + nome + "' creata con successo!");
+                dialog.dispose();
+
+                loadPromotionsData();
+
+            } catch (Exception ex) {
+                showErrorDialog("Errore", "Errore nella creazione: " + ex.getMessage());
+            }
         });
 
         cancelBtn.addActionListener(e -> dialog.dispose());
