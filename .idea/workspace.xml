@@ -6,10 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="7b2f60aa-5bda-4144-97a6-af725741fe10" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-client/src/main/java/com/trenicall/client/TrenicallSwingClientApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-client/src/main/java/com/trenicall/client/TrenicallSwingClientApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/TrenicallServerApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/TrenicallServerApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/PrenotazioneService.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/business/services/PrenotazioneService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/NotificaServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/trenicall-server/src/main/java/com/trenicall/server/grpc/impl/NotificaServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/uml/ComponentDiagrams/struttura-moduli.puml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/uml/ComponentDiagrams/struttura-moduli.puml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/uml/DeploymentDiagrams/infrastruttura.puml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/uml/DeploymentDiagrams/infrastruttura.puml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/uml/SequenceDiagrams/sistema-notifiche.puml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/uml/SequenceDiagrams/sistema-notifiche.puml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -258,7 +257,7 @@
       <workItem from="1756287549585" duration="6186000" />
       <workItem from="1756371947290" duration="26056000" />
       <workItem from="1756797826255" duration="48972000" />
-      <workItem from="1757201029273" duration="658000" />
+      <workItem from="1757201029273" duration="6114000" />
     </task>
     <servers />
   </component>

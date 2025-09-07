@@ -3,200 +3,78 @@
 title TreniCal - Component Diagram: Struttura Moduli Maven
 
 package "trenicall-parent" {
-    note top : POM principale con dipendenze comuni
 }
 
 package "trenicall-common" {
-    component "Common Utilities" as COMMON {
-        - Configurazioni condivise
-        - Utility classes
-        - Constants
-    }
+    component "Common Utilities" as COMMON
 }
 
 package "trenicall-server" {
 
     package "gRPC Layer" {
-        component "Proto Definitions" as PROTO {
-            - biglietteria.proto
-            - cliente.proto
-            - prenotazione.proto
-            - promozione.proto
-            - notifica.proto
-        }
-
-        component "gRPC Implementations" as GRPC_IMPL {
-            - BiglietteriaServiceImpl
-            - ClienteServiceImpl
-            - PrenotazioneServiceImpl
-            - PromozioneServiceImpl
-            - NotificaServiceImpl
-        }
+        component "Proto Definitions" as PROTO
+        component "gRPC Implementations" as GRPC_IMPL
     }
 
     package "Business Layer" {
-        component "Services" as SERVICES {
-            - BiglietteriaService
-            - ClienteService
-            - PrenotazioneService
-            - PromozioneService
-            - NotificaService
-        }
-
-        component "Design Patterns" as PATTERNS {
-            - Factory Pattern
-            - Command Pattern
-            - State Pattern
-            - Strategy Pattern
-            - Observer Pattern
-            - Builder Pattern
-        }
+        component "Services" as SERVICES
+        component "Design Patterns" as PATTERNS
     }
 
     package "Domain Layer" {
-        component "Entities" as ENTITIES {
-            - Biglietto
-            - Cliente
-            - Prenotazione
-            - Promozione
-            - Notifica
-            - Treno
-            - Tratta
-            - DisponibilitaTreno
-        }
-
-        component "Repositories" as REPOSITORIES {
-            - JPA Repository interfaces
-            - Query methods
-            - Database operations
-        }
-
-        component "Value Objects" as VALUE_OBJECTS {
-            - TipoBiglietto enum
-            - Business rules
-            - Domain constraints
-        }
+        component "Entities" as ENTITIES
+        component "Repositories" as REPOSITORIES
+        component "Value Objects" as VALUE_OBJECTS
     }
 
-    component "Configuration" as CONFIG {
-        - application.properties
-        - Spring Boot config
-        - Database config
-        - gRPC config
-    }
+    component "Configuration" as CONFIG
 }
 
 package "trenicall-client" {
-    component "Swing GUI" as CLIENT_GUI {
-        - TrenicallSwingClientApplication
-        - User interface panels
-        - Event handling
-        - Real-time notifications
-    }
-
-    component "gRPC Client Service" as CLIENT_GRPC {
-        - GrpcClientService
-        - Server communication
-        - Stream management
-        - Connection handling
-    }
+    component "Swing GUI" as CLIENT_GUI
+    component "gRPC Client Service" as CLIENT_GRPC
 }
 
 package "trenicall-admin" {
-    component "Admin GUI" as ADMIN_GUI {
-        - TrenicallAdminApplication
-        - AdminMainFrame
-        - Management panels
-        - Monitoring dashboards
-    }
-
-    component "Admin Services" as ADMIN_SERVICES {
-        - AdminService
-        - System monitoring
-        - Data management
-        - Notification management
-    }
-
-    component "File System Interface" as ADMIN_FS {
-        - Notification file writer
-        - File monitoring
-        - Admin→Server communication
-    }
+    component "Admin GUI" as ADMIN_GUI
+    component "Admin Services" as ADMIN_SERVICES
+    component "File System Interface" as ADMIN_FS
 }
 
 package "External Dependencies" {
-    component "Spring Boot" as SPRING {
-        - Dependency injection
-        - Auto-configuration
-        - Transaction management
-        - Scheduling
-    }
-
-    component "gRPC Framework" as GRPC_FW {
-        - Protocol implementation
-        - Code generation
-        - Stream management
-        - Interceptors
-    }
-
-    component "JPA/Hibernate" as JPA {
-        - ORM mapping
-        - Database abstraction
-        - Query generation
-        - Transaction support
-    }
-
-    component "MySQL Driver" as MYSQL_DRIVER {
-        - Database connectivity
-        - Connection pooling
-        - JDBC implementation
-    }
-
-    component "H2 Database" as H2_DRIVER {
-        - Test database
-        - In-memory storage
-        - Testing support
-    }
+    component "Spring Boot" as SPRING
+    component "gRPC Framework" as GRPC_FW
+    component "JPA/Hibernate" as JPA
+    component "MySQL Driver" as MYSQL_DRIVER
+    component "H2 Database" as H2_DRIVER
 }
 
-' Dependencies
-COMMON ..> "trenicall-parent"
-"trenicall-server" ..> COMMON
-"trenicall-client" ..> COMMON
-"trenicall-admin" ..> COMMON
+COMMON --> "trenicall-parent"
+"trenicall-server" --> COMMON
+"trenicall-client" --> COMMON
+"trenicall-admin" --> COMMON
 
-GRPC_IMPL ..> PROTO
-GRPC_IMPL ..> SERVICES
-SERVICES ..> PATTERNS
-SERVICES ..> ENTITIES
-SERVICES ..> REPOSITORIES
-ENTITIES ..> VALUE_OBJECTS
-REPOSITORIES ..> ENTITIES
+GRPC_IMPL --> PROTO
+GRPC_IMPL --> SERVICES
+SERVICES --> PATTERNS
+SERVICES --> ENTITIES
+SERVICES --> REPOSITORIES
+ENTITIES --> VALUE_OBJECTS
+REPOSITORIES --> ENTITIES
 
-CLIENT_GUI ..> CLIENT_GRPC
-CLIENT_GRPC ..> PROTO
+CLIENT_GUI --> CLIENT_GRPC
+CLIENT_GRPC --> PROTO
 
-ADMIN_GUI ..> ADMIN_SERVICES
-ADMIN_SERVICES ..> ADMIN_FS
+ADMIN_GUI --> ADMIN_SERVICES
+ADMIN_SERVICES --> ADMIN_FS
 
-' External Dependencies
-SERVICES ..> SPRING
-GRPC_IMPL ..> GRPC_FW
-REPOSITORIES ..> JPA
-JPA ..> MYSQL_DRIVER
-JPA ..> H2_DRIVER
+SERVICES --> SPRING
+GRPC_IMPL --> GRPC_FW
+REPOSITORIES --> JPA
+JPA --> MYSQL_DRIVER
+JPA --> H2_DRIVER
 
-' Cross-module Communication
 CLIENT_GRPC --> GRPC_IMPL : gRPC calls
 ADMIN_FS --> GRPC_IMPL : File notifications
-
-interface "gRPC Port 9090" as GRPC_PORT
-GRPC_IMPL - GRPC_PORT
-CLIENT_GRPC --> GRPC_PORT
-
-interface "Database Connection" as DB_CONN
-REPOSITORIES - DB_CONN
-MYSQL_DRIVER --> DB_CONN
-H2_DRIVER --> DB_CONN
 
 @enduml

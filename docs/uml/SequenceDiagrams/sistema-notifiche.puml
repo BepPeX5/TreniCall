@@ -10,7 +10,6 @@ participant "Admin Console" as ADMIN
 participant "File System" as FS
 participant "StreamObserver" as SO
 
-== Connessione Client per Notifiche ==
 C -> GUI: Clicca tab "Gestione Notifiche"
 GUI -> GUI: addFollowTrainTab()
 C -> GUI: Clicca "Carica Treni"
@@ -24,44 +23,36 @@ GC --> GUI: Popola ComboBox treni
 C -> GUI: Seleziona treno e clicca "Attiva Notifiche"
 GUI -> GC: seguiTreno(clienteId, trenoCodice, streamObserver)
 
-== Registrazione Stream Notifiche ==
 GC -> NSI: seguiTreno(request, responseObserver)
 NSI -> NSI: globalSubscribers.put(clienteId, responseObserver)
 NSI -> NSI: subscribersByTrain.get(codice).add(responseObserver)
 NSI -> SO: onNext(ack: "Registrato per treno + notifiche admin")
 SO --> GUI: Mostra "Ora stai seguendo il treno..."
 
-GUI -> GC: seguiTreno(clienteId, "", streamObserver) // Notifiche globali
+GUI -> GC: seguiTreno(clienteId, "", streamObserver)
 GC -> NSI: seguiTreno(request, responseObserver)
 NSI -> NSI: globalSubscribers.put(clienteId, responseObserver)
 
-== Notifiche Automatiche (ogni 45 secondi) ==
 loop Ogni 45 secondi
-    NSI -> NSI: pushSimulatedUpdates() [@Scheduled]
-
-    par Notifiche Treni Seguiti
-        NSI -> NSI: pushNotifichetreniSeguiti()
-        loop Per ogni treno seguito
-            NSI -> NSI: randomUpdateMessage(codice)
-            NSI -> SO: onNext("[TRENI SEGUITI] Treno X: in orario")
-            SO --> GUI: Appare in notificheArea
-        end
-    and Notifiche Treni Acquistati
-        NSI -> NSI: pushNotificheTreniAcquistati()
-        NSI -> "BigliettoRepository": findAll()
-        NSI -> NSI: getTreniConBiglietti(clienteId)
-        loop Per ogni cliente con biglietti
-            NSI -> SO: onNext("[TRENI ACQUISTATI] Treno Y: arrivo previsto...")
-            SO --> GUI: Appare in notificheArea
-        end
+    NSI -> NSI: pushSimulatedUpdates()
+    NSI -> NSI: pushNotificheTreniSeguiti()
+    loop Per ogni treno seguito
+        NSI -> NSI: randomUpdateMessage(codice)
+        NSI -> SO: onNext("[TRENI SEGUITI] Treno X: in orario")
+        SO --> GUI: Appare in notificheArea
+    end
+    NSI -> NSI: pushNotificheTreniAcquistati()
+    NSI -> "BigliettoRepository": findAll()
+    NSI -> NSI: getTreniConBiglietti(clienteId)
+    loop Per ogni cliente con biglietti
+        NSI -> SO: onNext("[TRENI ACQUISTATI] Treno Y: arrivo previsto...")
+        SO --> GUI: Appare in notificheArea
     end
 end
 
-== Notifiche Admin (ogni secondo) ==
 loop Ogni secondo
-    NSI -> NSI: checkAdminNotifications() [@Scheduled]
+    NSI -> NSI: checkAdminNotifications()
     NSI -> FS: readAllLines(NOTIFICATIONS_FILE)
-
     alt File contiene notifiche
         FS --> NSI: List<String> notifiche
         loop Per ogni riga notifica
@@ -78,29 +69,22 @@ loop Ogni secondo
                 end
             end
         end
-        NSI -> FS: truncate(NOTIFICATIONS_FILE) // Pulisce file
+        NSI -> FS: truncate(NOTIFICATIONS_FILE)
     else File vuoto
         FS --> NSI: Empty
     end
 end
 
-== Invio da Admin Console ==
 ADMIN -> FS: write("TR001|RITARDO|Ritardo di 15 minuti causa maltempo")
 FS --> ADMIN: File scritto
-note right
-    Formato: TRENO_ID|EVENTO|MESSAGGIO
-    o BROADCAST|EVENTO|MESSAGGIO
-end note
 
-== Notifiche Scadenza Prenotazioni ==
 loop Ogni minuto
-    "PrenotazioneService" -> "PrenotazioneService": verificaScadenzeImminenti() [@Scheduled]
+    "PrenotazioneService" -> "PrenotazioneService": verificaScadenzeImminenti()
     "PrenotazioneService" -> NSI: inviaNotificaScadenza(clienteId, messaggio, trenoId)
     NSI -> SO: onNext("[SCADENZA-ALERT] Prenotazione scade tra 2 minuti")
     SO --> GUI: Notifica urgente scadenza
 end
 
-== Disconnessione Client ==
 C -> GUI: Chiude applicazione
 GUI -> GC: logoutNotifiche(clienteId)
 GC -> NSI: logoutNotifiche(request)
@@ -109,4 +93,3 @@ NSI -> NSI: subscribersByTrain.removeIf(observer == removed)
 NSI --> GC: LogoutResponse(success=true)
 
 @enduml
-
