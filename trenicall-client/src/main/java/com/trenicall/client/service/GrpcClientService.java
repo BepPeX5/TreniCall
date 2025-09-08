@@ -163,6 +163,13 @@ public class GrpcClientService {
         return response.getSuccess();
     }
 
+    public ClienteResponse abilitaFedelta(String clienteId) {
+        AbilitaFedeltaRequest request = AbilitaFedeltaRequest.newBuilder()
+                .setClienteId(clienteId)
+                .build();
+
+        return clienteStub.abilitaFedelta(request);
+    }
 
     public void shutdown() {
         try {

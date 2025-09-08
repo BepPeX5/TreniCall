@@ -125,10 +125,38 @@ public class DashboardPanel extends JPanel {
 
         panel.add(createMetricCard("🚂", "Treni Attivi", totalTrainsLabel, PRIMARY_COLOR));
         panel.add(createMetricCard("💰", "Promozioni", activePromotionsLabel, SUCCESS_COLOR));
-        panel.add(createMetricCard("👥", "Clienti Online", connectedClientsLabel, INFO_COLOR));
+        panel.add(createMetricCardSenzaPercentuale("👥", "Clienti Online", connectedClientsLabel, INFO_COLOR));
         panel.add(createMetricCard("💸", "Ricavi Giornalieri", dailyRevenueLabel, WARNING_COLOR));
 
         return panel;
+    }
+
+    private JPanel createMetricCardSenzaPercentuale(String icon, String title, JLabel valueLabel, Color color) {
+        JPanel card = createCard(title);
+        card.setLayout(new BorderLayout(10, 10));
+        card.setPreferredSize(new Dimension(200, 120));
+
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        headerPanel.setOpaque(false);
+
+        JLabel iconLabel = new JLabel(icon);
+        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 24));
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 12));
+        titleLabel.setForeground(new Color(127, 140, 141));
+
+        headerPanel.add(iconLabel);
+        headerPanel.add(titleLabel);
+
+        valueLabel.setFont(new Font("Arial", Font.BOLD, 28));
+        valueLabel.setForeground(color);
+        valueLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        card.add(headerPanel, BorderLayout.NORTH);
+        card.add(valueLabel, BorderLayout.CENTER);
+
+        return card;
     }
 
     private JPanel createChartsPanel() {

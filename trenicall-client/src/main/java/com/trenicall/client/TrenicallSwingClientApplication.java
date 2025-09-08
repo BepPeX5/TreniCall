@@ -728,7 +728,7 @@ public class TrenicallSwingClientApplication extends JFrame {
                 return;
             }
 
-            grpcService.registraCliente(currentClientId, response.getNome(), response.getEmail(), response.getTelefono());
+            ClienteResponse fedeltaResponse = grpcService.abilitaFedelta(currentClientId);
 
             fedeltaStatusLabel.setText("Fedeltà: ATTIVA");
             fedeltaStatusLabel.setBackground(SUCCESS_COLOR);
